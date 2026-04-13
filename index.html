@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ============================================
    CSS CUSTOM PROPERTIES — DARK ONLY
@@ -224,6 +225,22 @@ section { scroll-margin-top: 60px; }
   border-radius: 50%; z-index: 1;
   box-shadow: 0 0 14px rgba(255,45,85,0.5);
 }
+.cal-day.today {
+  position: relative;
+  box-shadow: 0 0 0 2.5px #fbbf24, 0 0 10px rgba(251,191,36,0.5);
+  font-weight: 800;
+  z-index: 2;
+}
+.cal-day.today::after {
+  content: ''; position: absolute; inset: -4px; border-radius: inherit;
+  box-shadow: 0 0 0 2px rgba(251,191,36,0.35);
+  pointer-events: none;
+  animation: today-pulse 2s ease-in-out infinite;
+}
+@keyframes today-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
 
 .legend {
   display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
@@ -380,6 +397,22 @@ section { scroll-margin-top: 60px; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* Aggregate progress card */
+.dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.dash-card { padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; min-height: 118px; }
+.dash-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; }
+.dash-big { font-size: 44px; font-weight: 800; line-height: 1.05; letter-spacing: -1.5px; color: var(--accent-purple); }
+.dash-sub { font-size: 13px; color: var(--text-secondary); }
+.dash-title { font-size: 17px; font-weight: 700; color: var(--text); margin-top: 2px; line-height: 1.25; cursor: pointer; }
+.dash-title:hover { color: var(--accent-purple); }
+.dash-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.dash-badge { margin-top: 8px; align-self: flex-start; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+.countdown-card.post-birth .dash-big { color: var(--cal-baby-bg, #ff2d55); }
+.dl-ok { background: rgba(74,222,128,0.15); color: var(--accent-green); border: 1px solid rgba(74,222,128,0.3); }
+.dl-soon { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.35); }
+.dl-urgent { background: rgba(251,113,133,0.18); color: #fb7185; border: 1px solid rgba(251,113,133,0.4); }
+.dl-overdue { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.45); }
+.deadline-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 6px; white-space: nowrap; }
+
 .aggregate-card { display: flex; align-items: center; gap: 18px; padding: 18px 22px; margin-bottom: 24px; }
 .aggregate-card .agg-num { font-size: 30px; font-weight: 800; color: var(--accent-purple); letter-spacing: -1px; white-space: nowrap; }
 .aggregate-card .agg-info { flex: 1; min-width: 0; }
@@ -388,6 +421,7 @@ section { scroll-margin-top: 60px; }
 
 /* Uploader */
 .uploader {
+  display: block; box-sizing: border-box;
   margin-top: 14px; border: 2px dashed var(--glass-border); border-radius: 14px;
   padding: 18px; text-align: center; font-size: 13px; color: var(--text-secondary);
   transition: border-color 0.2s, background 0.2s; cursor: pointer;
@@ -495,39 +529,67 @@ section { scroll-margin-top: 60px; }
 </head>
 <body>
 
-<!-- ========== PASSWORD GATE ========== -->
+<!-- ========== SUPABASE AUTH GATE ========== -->
 <div id="auth-gate" style="position:fixed;inset:0;z-index:9999;background:#0a0a1a;background-image:linear-gradient(135deg,#1a0533 0%,#0f1b3d 40%,#0a2a4a 70%,#132743 100%);display:flex;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;">
   <div style="background:rgba(255,255,255,0.06);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:40px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(139,92,246,0.15);">
     <div style="font-size:36px;margin-bottom:12px;">👶</div>
     <h2 style="color:#f0eef5;font-size:20px;font-weight:700;margin-bottom:6px;">Plan de Paternidad</h2>
-    <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:24px;">Introduce la contraseña para acceder</p>
-    <input id="auth-input" type="password" placeholder="Contraseña" autofocus
-      style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#f0eef5;font-size:15px;outline:none;margin-bottom:12px;font-family:inherit;"
+    <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:24px;">Inicia sesión para acceder</p>
+    <input id="auth-email" type="email" placeholder="Email" autocomplete="email" autofocus
+      style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#f0eef5;font-size:15px;outline:none;margin-bottom:10px;font-family:inherit;box-sizing:border-box;">
+    <input id="auth-input" type="password" placeholder="Contraseña" autocomplete="current-password"
+      style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#f0eef5;font-size:15px;outline:none;margin-bottom:12px;font-family:inherit;box-sizing:border-box;"
       onkeydown="if(event.key==='Enter')document.getElementById('auth-btn').click()">
     <button id="auth-btn" onclick="checkAuth()"
       style="width:100%;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.2s;"
       onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Entrar</button>
-    <p id="auth-error" style="color:#fb7185;font-size:12px;margin-top:10px;display:none;">Contraseña incorrecta</p>
+    <p id="auth-error" style="color:#fb7185;font-size:12px;margin-top:10px;display:none;">Credenciales incorrectas</p>
   </div>
 </div>
 <script>
-function checkAuth(){
-  if(document.getElementById('auth-input').value==='luca2026'){
-    sessionStorage.setItem('auth','1');
-    document.getElementById('auth-gate').remove();
-    document.getElementById('main-content').style.display='';
-  } else {
-    document.getElementById('auth-error').style.display='block';
-    document.getElementById('auth-input').value='';
-    document.getElementById('auth-input').focus();
+const SUPABASE_URL = 'https://voirsxfjdayhhvwviaqt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvaXJzeGZqZGF5aGh2d3ZpYXF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMTU3NjcsImV4cCI6MjA5MTY5MTc2N30.Jm-_Bzsxep9nl8PIvozQISiuPR_GzK_2hKJTCUGHUWM';
+window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+window.__authReady = false;
+
+function showApp() {
+  const gate = document.getElementById('auth-gate');
+  if (gate) gate.remove();
+  const main = document.getElementById('main-content');
+  if (main) main.style.display = '';
+  if (!window.__authReady) {
+    window.__authReady = true;
+    window.dispatchEvent(new Event('auth-ready'));
   }
 }
-if(sessionStorage.getItem('auth')==='1'){
-  document.addEventListener('DOMContentLoaded',function(){
-    document.getElementById('auth-gate').remove();
-    document.getElementById('main-content').style.display='';
-  });
+
+async function checkAuth(){
+  const emailEl = document.getElementById('auth-email');
+  const passEl = document.getElementById('auth-input');
+  const errEl = document.getElementById('auth-error');
+  const btn = document.getElementById('auth-btn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  const { error } = await window.sb.auth.signInWithPassword({ email: emailEl.value.trim(), password: passEl.value });
+  btn.disabled = false; btn.textContent = 'Entrar';
+  if (error) {
+    errEl.textContent = 'Credenciales incorrectas';
+    errEl.style.display = 'block';
+    passEl.value = ''; passEl.focus();
+    return;
+  }
+  showApp();
 }
+
+window.sb.auth.getSession().then(({ data }) => {
+  if (data && data.session) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', showApp);
+    } else {
+      showApp();
+    }
+  }
+});
 </script>
 
 <div id="main-content" style="display:none;">
@@ -551,7 +613,7 @@ if(sessionStorage.getItem('auth')==='1'){
   <!-- ========== HEADER ========== -->
   <div class="header">
     <h1>Plan de Paternidad + Vacaciones</h1>
-    <div class="sub">Islas Canarias, España · Luca: 20 de abril de 2026 · Bloques optimizados por turno (85,7%)</div>
+    <div class="sub">Islas Canarias, España · Luca llega el 20 de abril de 2026</div>
   </div>
 
   <!-- ========== TOTAL DÍAS (moved to top) ========== -->
@@ -564,6 +626,19 @@ if(sessionStorage.getItem('auth')==='1'){
 
   <!-- ========== RESUMEN ========== -->
   <section id="resumen" class="tab-section active">
+    <div class="dashboard">
+      <div class="glass dash-card countdown-card" id="countdown-card">
+        <div class="dash-label">Luca</div>
+        <div class="dash-big" id="countdown-num">—</div>
+        <div class="dash-sub" id="countdown-sub">días para la EDD</div>
+      </div>
+      <div class="glass dash-card next-action-card" id="next-action-card">
+        <div class="dash-label">Próxima acción</div>
+        <div class="dash-title" id="next-action-title">—</div>
+        <div class="dash-meta" id="next-action-meta"></div>
+        <div class="dash-badge" id="next-action-badge"></div>
+      </div>
+    </div>
     <div class="glass aggregate-card">
       <div class="agg-num"><span id="agg-done">0</span>/<span id="agg-total">0</span></div>
       <div class="agg-info">
@@ -607,6 +682,7 @@ if(sessionStorage.getItem('auth')==='1'){
       <div class="legend-item"><div class="legend-dot" style="background:var(--cal-workday-bg); outline: 2.5px solid var(--cal-shift-ring); outline-offset:-2.5px"></div> Días libres turno</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--cal-workday-bg); border-bottom: 2.5px solid var(--cal-school-border)"></div> Escuela verano</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--cal-baby-bg)"></div> Nace Luca</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--cal-workday-bg); box-shadow: 0 0 0 2.5px #fbbf24"></div> Hoy</div>
     </div>
     <div class="cal-grid" id="yearCalendar"></div>
   </section>
@@ -801,16 +877,13 @@ if(sessionStorage.getItem('auth')==='1'){
 <!-- ========== SETTINGS MODAL ========== -->
 <div class="modal-backdrop" id="settings-modal">
   <div class="modal">
-    <h3>⚙ Ajustes de sincronización</h3>
-    <p>Para que los trámites y documentos se sincronicen entre dispositivos, introduce un <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">token personal de GitHub</a> con permiso <strong>Contents: Read and write</strong> sobre el repo <code>CommnaderWi11/parental-leave-plan</code>.</p>
-    <input type="password" id="pat-input" placeholder="github_pat_..." autocomplete="off">
+    <h3>⚙ Sesión</h3>
+    <p>Los trámites y documentos se sincronizan automáticamente entre dispositivos con la misma cuenta.</p>
+    <p id="session-email" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></p>
     <div class="modal-actions">
-      <button class="btn btn-primary" id="pat-save">Guardar</button>
-      <button class="btn btn-secondary" id="pat-cancel">Cerrar</button>
-      <button class="btn btn-danger" id="pat-clear">Borrar token</button>
+      <button class="btn btn-secondary" id="logout-cancel">Cerrar</button>
+      <button class="btn btn-danger" id="logout-btn">Cerrar sesión</button>
     </div>
-    <div class="error-msg" id="pat-error"></div>
-    <p style="margin-top:14px;font-size:11px;color:var(--text-muted);">El token se guarda solo en este dispositivo (localStorage). Los documentos subidos son <strong>públicos</strong> (repo público). Revoca el token en cualquier momento desde los ajustes de GitHub.</p>
   </div>
 </div>
 
@@ -820,6 +893,69 @@ if(sessionStorage.getItem('auth')==='1'){
 <!-- ============================================
      SCRIPTS
      ============================================ -->
+<script>
+// ========== DEADLINE ENGINE ==========
+window.BIRTH_EDD = new Date(2026, 3, 20); // 20 Apr 2026
+
+window.BLOQUE_STARTS = {
+  1: new Date(2026, 3, 20),   // obligatorio
+  2: new Date(2026, 5, 17),
+  3: new Date(2026, 7, 10),
+  4: new Date(2026, 10, 8),
+  5: new Date(2026, 11, 23)
+};
+
+// Rules per trámite key (group-idx). Each rule resolves to an absolute date.
+// kinds: absolute | afterBirth (days) | beforeBloque (n, days) | beforeEDD (days)
+window.TRAMITE_DEADLINES = {
+  // Registro Civil
+  'registro-0': { kind: 'afterBirth', days: 3, label: '72h tras nacimiento' },     // Parte médico
+  'registro-1': { kind: 'afterBirth', days: 10, label: '10 días tras nacimiento' }, // DNI copias (con inscripción)
+  'registro-2': { kind: 'afterBirth', days: 10, label: '10 días tras nacimiento' }, // Libro de Familia
+  'registro-3': { kind: 'afterBirth', days: 10, label: '10 días (max 30)' },       // Declaración si hospital no tramitó
+  // INSS
+  'inss-0': { kind: 'afterBirth', days: 15, label: 'Cuanto antes tras nacimiento' }, // MP-1 bis
+  'inss-1': { kind: 'afterBirth', days: 15, label: 'Con la solicitud' },             // DNI
+  'inss-2': { kind: 'afterBirth', days: 15, label: 'Tras el parto' },                // Informe maternidad
+  'inss-3': { kind: 'afterBirth', days: 15, label: 'Tras inscripción Registro' },    // Libro Familia → INSS
+  'inss-4': { kind: 'afterBirth', days: 15, label: 'Certificado empresa' },          // Binter lo envía
+  'inss-5': { kind: 'beforeBloque', bloque: 2, days: 15, label: '15 d antes del bloque' }, // solicitud periodos sucesivos
+  // Binter
+  'binter-0': { kind: 'beforeEDD', days: 1, label: 'Antes del nacimiento' },         // Comunicación formal
+  'binter-1': { kind: 'afterBirth', days: 15, label: 'Tras inscripción Registro' },  // Certificado / Libro Familia
+  'binter-2': { kind: 'beforeBloque', bloque: 2, days: 15, label: '15 d antes del bloque' }, // Solicitud bloque flexible
+  'binter-3': { kind: 'beforeEDD', days: 7, label: 'Antes del periodo obligatorio' } // Devolución vacaciones solapadas
+};
+
+window.resolveDeadline = function(key) {
+  const rule = window.TRAMITE_DEADLINES[key];
+  if (!rule) return null;
+  let d = null;
+  if (rule.kind === 'absolute') d = new Date(rule.date);
+  else if (rule.kind === 'afterBirth') { d = new Date(window.BIRTH_EDD); d.setDate(d.getDate() + rule.days); }
+  else if (rule.kind === 'beforeEDD') { d = new Date(window.BIRTH_EDD); d.setDate(d.getDate() - rule.days); }
+  else if (rule.kind === 'beforeBloque') { const b = window.BLOQUE_STARTS[rule.bloque]; if (!b) return null; d = new Date(b); d.setDate(d.getDate() - rule.days); }
+  if (!d) return null;
+  d.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = Math.round((d - today) / 86400000);
+  return { date: d, daysUntil: days, label: rule.label, rule };
+};
+
+window.formatDeadlineBadge = function(daysUntil) {
+  if (daysUntil < 0) return { text: 'Vencido hace ' + Math.abs(daysUntil) + ' d', cls: 'dl-overdue' };
+  if (daysUntil === 0) return { text: 'Vence hoy', cls: 'dl-urgent' };
+  if (daysUntil === 1) return { text: 'Vence mañana', cls: 'dl-urgent' };
+  if (daysUntil <= 3) return { text: 'Vence en ' + daysUntil + ' d', cls: 'dl-urgent' };
+  if (daysUntil <= 14) return { text: 'Vence en ' + daysUntil + ' d', cls: 'dl-soon' };
+  return { text: 'Vence en ' + daysUntil + ' d', cls: 'dl-ok' };
+};
+
+window.fmtLongDate = function(d) {
+  const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+};
+</script>
 <script>
 // ========== CALENDAR ==========
 (function() {
@@ -932,6 +1068,8 @@ if(sessionStorage.getItem('auth')==='1'){
       if (tripDay) cell.classList.add('trip');
       if (schoolDay && !type) cell.classList.add('school');
       if (year === 2026 && month === 3 && d === 20) { cell.classList.add('baby'); cell.title = '¡Nace Luca!'; }
+      const todayCmp = new Date(); todayCmp.setHours(0,0,0,0);
+      if (date.getTime() === todayCmp.getTime()) { cell.classList.add('today'); cell.title = (cell.title ? cell.title + ' · ' : '') + 'Hoy'; }
       daysDiv.appendChild(cell);
     }
     monthDiv.appendChild(daysDiv);
@@ -939,23 +1077,22 @@ if(sessionStorage.getItem('auth')==='1'){
   }
 })();
 
-// ========== TRÁMITES + SYNC + UPLOADS ==========
+// ========== TRÁMITES + SYNC + UPLOADS (Supabase) ==========
 (function() {
-  // Repo config
-  const REPO_OWNER = 'CommnaderWi11';
-  const REPO_NAME  = 'parental-leave-plan';
-  const STATE_PATH = 'state.json';
   const LEGACY_KEY = 'parental-leave-tramites';
   const LOCAL_STATE_KEY = 'parental-leave-state';
-  const PAT_KEY = 'gh-pat';
+  const BUCKET = 'documents';
 
-  // Groups map to Documents/ subfolders
   const GROUP_FOLDERS = {
     registro: 'Registro-Civil',
     inss: 'INSS',
     binter: 'Binter'
   };
-  // Registro Civil group also uses Hospital; INSS uses Hospital + Binter. We list one folder per group, but "attach" can target any.
+
+  let sb = null;
+  let stateRowId = null;
+  let lastSavedAt = 0;
+  let authed = false;
 
   // ---------- Toast module ----------
   const toastHost = document.getElementById('toast-host');
@@ -977,90 +1114,24 @@ if(sessionStorage.getItem('auth')==='1'){
     return el;
   }
 
-  // ---------- GitHub API client ----------
-  function getToken() { return localStorage.getItem(PAT_KEY); }
-  function setToken(t) { if (t) localStorage.setItem(PAT_KEY, t); else localStorage.removeItem(PAT_KEY); }
-  function hasToken() { return !!getToken(); }
-
-  async function gh(path, opts) {
-    opts = opts || {};
-    const headers = Object.assign({
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    }, opts.headers || {});
-    const token = getToken();
-    if (token) headers['Authorization'] = 'Bearer ' + token;
-    const url = 'https://api.github.com' + path;
-    const res = await fetch(url, { method: opts.method || 'GET', headers, body: opts.body });
-    if (res.status === 403 && res.headers.get('X-RateLimit-Remaining') === '0') {
-      const reset = parseInt(res.headers.get('X-RateLimit-Reset') || '0') * 1000;
-      const mins = Math.max(1, Math.ceil((reset - Date.now()) / 60000));
-      throw new Error('Límite de GitHub alcanzado — reintenta en ' + mins + 'm');
-    }
-    return res;
-  }
-
-  function utf8ToB64(str) { return btoa(unescape(encodeURIComponent(str))); }
-  function b64ToUtf8(b64) { try { return decodeURIComponent(escape(atob(b64))); } catch { return atob(b64); } }
-
-  async function ghGetFile(path) {
-    const res = await gh('/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURI(path));
-    if (res.status === 404) return { exists: false };
-    if (!res.ok) throw new Error('GET ' + path + ' → ' + res.status);
-    const j = await res.json();
-    return { exists: true, sha: j.sha, content: b64ToUtf8(j.content.replace(/\n/g, '')), raw: j };
-  }
-
-  async function ghPutFile(path, contentB64, message, sha) {
-    const body = { message: message, content: contentB64 };
-    if (sha) body.sha = sha;
-    const res = await gh('/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURI(path), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) {
-      const t = await res.text();
-      throw new Error('PUT ' + path + ' → ' + res.status + ' ' + t.slice(0,120));
-    }
-    return await res.json();
-  }
-
-  async function ghDeleteFile(path, sha, message) {
-    const res = await gh('/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURI(path), {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: message, sha: sha })
-    });
-    if (!res.ok) throw new Error('DELETE ' + path + ' → ' + res.status);
-    return await res.json();
-  }
-
-  async function ghListDir(path) {
-    const res = await gh('/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURI(path));
-    if (res.status === 404) return [];
-    if (!res.ok) throw new Error('LIST ' + path + ' → ' + res.status);
-    const j = await res.json();
-    return Array.isArray(j) ? j.filter(e => e.type === 'file') : [];
-  }
-
-  async function validateToken(token) {
-    const res = await fetch('https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME, {
-      headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token }
-    });
-    return res.ok;
-  }
-
   // ---------- State ----------
   let state = { tramites: {}, docs: {} };
-  let stateSha = null;
+
+  function stripLegacyPrefix(p) {
+    if (typeof p !== 'string') return p;
+    return p.replace(/^Documents\//, '');
+  }
+  function normalizeDocs(docs) {
+    const out = {};
+    Object.keys(docs || {}).forEach(k => { out[k] = stripLegacyPrefix(docs[k]); });
+    return out;
+  }
 
   function loadLocal() {
     try {
       const s = JSON.parse(localStorage.getItem(LOCAL_STATE_KEY) || 'null');
-      if (s && typeof s === 'object') return { tramites: s.tramites || {}, docs: s.docs || {} };
+      if (s && typeof s === 'object') return { tramites: s.tramites || {}, docs: normalizeDocs(s.docs) };
     } catch {}
-    // Legacy migration: old flat key → tramites
     try {
       const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY) || 'null');
       if (legacy && typeof legacy === 'object') return { tramites: legacy, docs: {} };
@@ -1070,50 +1141,51 @@ if(sessionStorage.getItem('auth')==='1'){
   function saveLocal() { localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(state)); }
 
   async function loadRemote() {
-    const r = await ghGetFile(STATE_PATH);
-    if (!r.exists) { stateSha = null; return null; }
-    stateSha = r.sha;
-    try {
-      const parsed = JSON.parse(r.content);
-      return { tramites: parsed.tramites || {}, docs: parsed.docs || {} };
-    } catch { return null; }
+    const { data, error } = await sb.from('app_state').select('*').limit(1).maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
+    stateRowId = data.id;
+    return { tramites: data.tramites || {}, docs: normalizeDocs(data.docs) };
   }
 
   let saveTimer = null;
   let pendingToast = null;
   function queueSave() {
     saveLocal();
-    if (!hasToken()) return;
+    if (!authed || !stateRowId) return;
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(doSave, 1500);
   }
   async function doSave() {
-    const payload = Object.assign({}, state, { updatedAt: new Date().toISOString() });
-    const b64 = utf8ToB64(JSON.stringify(payload, null, 2));
+    if (!stateRowId) return;
+    const now = new Date().toISOString();
+    lastSavedAt = Date.now();
     if (pendingToast) pendingToast.remove();
     pendingToast = toast('Sincronizando…', 'loading');
-    try {
-      const res = await ghPutFile(STATE_PATH, b64, 'Update state', stateSha);
-      stateSha = res.content && res.content.sha;
-      if (pendingToast) pendingToast.remove();
+    const { error } = await sb.from('app_state').update({
+      tramites: state.tramites,
+      docs: state.docs,
+      updated_at: now
+    }).eq('id', stateRowId);
+    if (pendingToast) pendingToast.remove();
+    if (error) {
+      pendingToast = toast('⚠ No se pudo guardar: ' + error.message, 'error');
+    } else {
       pendingToast = toast('✓ Guardado', 'success');
-      updateSyncPill();
-    } catch (e) {
-      // Handle SHA conflict
-      if (('' + e.message).includes('409') || ('' + e.message).includes('422')) {
-        try {
-          const remote = await loadRemote();
-          if (remote) {
-            state.tramites = Object.assign({}, remote.tramites, state.tramites);
-            state.docs = Object.assign({}, remote.docs, state.docs);
-            saveLocal();
-            return doSave();
-          }
-        } catch (e2) {/* fallthrough */}
-      }
-      if (pendingToast) pendingToast.remove();
-      pendingToast = toast('⚠ No se pudo guardar: ' + e.message, 'error');
     }
+  }
+
+  async function signedUrlFor(path) {
+    try {
+      const { data, error } = await sb.storage.from(BUCKET).createSignedUrl(path, 3600);
+      if (error) return null;
+      return data && data.signedUrl;
+    } catch { return null; }
+  }
+  async function openDoc(path) {
+    const url = await signedUrlFor(path);
+    if (url) window.open(url, '_blank', 'noopener');
+    else toast('⚠ No se pudo abrir el archivo', 'error');
   }
 
   // ---------- UI: checkboxes ----------
@@ -1155,15 +1227,104 @@ if(sessionStorage.getItem('auth')==='1'){
   const groups = new Set();
   allBoxes.forEach(b => groups.add(b.dataset.group));
 
+  function renderUrgencyBadge(box) {
+    const row = box.closest('.tramite-row');
+    if (!row) return;
+    let badge = row.querySelector('.deadline-badge');
+    if (box.checked) { if (badge) badge.remove(); return; }
+    const key = box.dataset.group + '-' + box.dataset.idx;
+    const dl = window.resolveDeadline(key);
+    if (!dl) { if (badge) badge.remove(); return; }
+    const fmt = window.formatDeadlineBadge(dl.daysUntil);
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'deadline-badge';
+      const statusBadge = row.querySelector('.badge');
+      if (statusBadge && statusBadge.parentNode) statusBadge.parentNode.insertBefore(badge, statusBadge);
+      else row.appendChild(badge);
+    }
+    badge.className = 'deadline-badge ' + fmt.cls;
+    badge.textContent = fmt.text;
+    badge.title = 'Límite: ' + window.fmtLongDate(dl.date) + ' · ' + dl.label;
+  }
+
+  function renderDashboard() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const edd = window.BIRTH_EDD;
+    const daysToEdd = Math.round((edd - today) / 86400000);
+    const ccard = document.getElementById('countdown-card');
+    const cnum = document.getElementById('countdown-num');
+    const csub = document.getElementById('countdown-sub');
+    if (cnum && csub && ccard) {
+      if (daysToEdd > 0) {
+        cnum.textContent = daysToEdd;
+        csub.textContent = daysToEdd === 1 ? 'día para la EDD (20 abr 2026)' : 'días para la EDD (20 abr 2026)';
+        ccard.classList.remove('post-birth');
+      } else if (daysToEdd === 0) {
+        cnum.textContent = '¡Hoy!';
+        csub.textContent = 'Fecha probable de parto';
+        ccard.classList.remove('post-birth');
+      } else {
+        cnum.textContent = Math.abs(daysToEdd);
+        csub.textContent = Math.abs(daysToEdd) === 1 ? 'día desde la EDD' : 'días desde la EDD';
+        ccard.classList.add('post-birth');
+      }
+    }
+
+    const title = document.getElementById('next-action-title');
+    const meta = document.getElementById('next-action-meta');
+    const bdg = document.getElementById('next-action-badge');
+    if (!title) return;
+    const candidates = [];
+    allBoxes.forEach(box => {
+      if (box.checked) return;
+      const key = box.dataset.group + '-' + box.dataset.idx;
+      const dl = window.resolveDeadline(key);
+      if (!dl) return;
+      const nameEl = box.parentElement.querySelector('.tramite-info .name');
+      candidates.push({ key, dl, name: nameEl ? nameEl.textContent : key, box });
+    });
+    if (!candidates.length) {
+      title.textContent = '🎉 Todo al día';
+      meta.textContent = 'No hay plazos pendientes inmediatos.';
+      bdg.style.display = 'none';
+      title.onclick = null;
+      return;
+    }
+    candidates.sort((a, b) => a.dl.daysUntil - b.dl.daysUntil);
+    const top = candidates[0];
+    title.textContent = top.name;
+    meta.textContent = 'Límite: ' + window.fmtLongDate(top.dl.date) + ' · ' + top.dl.label;
+    const fmt = window.formatDeadlineBadge(top.dl.daysUntil);
+    bdg.style.display = '';
+    bdg.className = 'dash-badge ' + fmt.cls;
+    bdg.textContent = fmt.text;
+    title.onclick = () => {
+      const tramitesTab = document.querySelector('.nav-link[href="#tramites"]');
+      if (tramitesTab) tramitesTab.click();
+      setTimeout(() => {
+        top.box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const row = top.box.closest('.tramite-row');
+        if (row) {
+          row.style.transition = 'box-shadow 0.3s';
+          row.style.boxShadow = '0 0 0 2px #fbbf24';
+          setTimeout(() => { row.style.boxShadow = ''; }, 1800);
+        }
+      }, 120);
+    };
+  }
+
   function applyStateToUI() {
     allBoxes.forEach(box => {
       const key = box.dataset.group + '-' + box.dataset.idx;
       box.checked = !!state.tramites[key];
       applyRowStyle(box);
       renderRowDoc(box);
+      renderUrgencyBadge(box);
     });
     groups.forEach(updateGroupProgress);
     updateAggregate();
+    renderDashboard();
   }
 
   allBoxes.forEach(box => {
@@ -1171,8 +1332,10 @@ if(sessionStorage.getItem('auth')==='1'){
       const key = this.dataset.group + '-' + this.dataset.idx;
       state.tramites[key] = this.checked;
       applyRowStyle(this);
+      renderUrgencyBadge(this);
       updateGroupProgress(this.dataset.group);
       updateAggregate();
+      renderDashboard();
       queueSave();
     });
   });
@@ -1185,14 +1348,14 @@ if(sessionStorage.getItem('auth')==='1'){
     const key = box.dataset.group + '-' + box.dataset.idx;
     const folder = slot.dataset.folder;
     slot.innerHTML = '';
-    const path = state.docs[key];
+    const path = stripLegacyPrefix(state.docs[key]);
     if (path) {
       const a = document.createElement('a');
       a.className = 'doc-pill filled';
-      a.href = path;
-      a.target = '_blank';
+      a.href = '#';
       a.rel = 'noopener';
       a.innerHTML = '<span>📎</span><span class="doc-name">' + path.split('/').pop() + '</span>';
+      a.onclick = (e) => { e.preventDefault(); openDoc(path); };
       slot.appendChild(a);
       const del = document.createElement('button');
       del.className = 'doc-pill-unlink';
@@ -1207,11 +1370,11 @@ if(sessionStorage.getItem('auth')==='1'){
       slot.appendChild(del);
     } else {
       const btn = document.createElement('button');
-      btn.className = 'doc-pill' + (hasToken() ? '' : ' disabled');
-      btn.title = hasToken() ? ('Subir a Documents/' + folder) : 'Configura el token de GitHub primero';
+      btn.className = 'doc-pill' + (authed ? '' : ' disabled');
+      btn.title = 'Subir a ' + folder + '/';
       btn.innerHTML = '<span>⬆</span><span>Subir a ' + folder + '/</span>';
       btn.onclick = () => {
-        if (!hasToken()) { toast('⚠ Configura el token de GitHub primero', 'error'); return; }
+        if (!authed) { toast('⚠ Inicia sesión primero', 'error'); return; }
         openAttachPicker(box, folder);
       };
       slot.appendChild(btn);
@@ -1254,61 +1417,51 @@ if(sessionStorage.getItem('auth')==='1'){
   }
 
   async function uploadFile(file, folder) {
-    const MAX_HARD = 100 * 1024 * 1024;
-    const MAX_WARN = 25 * 1024 * 1024;
-    if (file.size > MAX_HARD) { toast('⚠ Archivo supera el límite de 100 MB de GitHub', 'error'); return null; }
-    if (file.size > MAX_WARN) { toast('Archivo grande (' + Math.round(file.size/1024/1024) + ' MB) — puede tardar', 'loading'); }
+    const MAX_HARD = 50 * 1024 * 1024;
+    if (file.size > MAX_HARD) { toast('⚠ Archivo supera el límite de 50 MB', 'error'); return null; }
 
-    // Prompt for label
     const origBase = (file.name.split('.').slice(0, -1).join('.') || file.name);
     const ext = (file.name.split('.').pop() || 'bin').toLowerCase();
     const label = prompt('Nombre para el archivo (sin extensión):', origBase);
     if (label === null) return null;
     const slug = slugify(label) || slugify(origBase);
     const fname = yyyymmdd(new Date()) + '-' + slug + '.' + ext;
-    const path = 'Documents/' + folder + '/' + fname;
-
-    const b64 = await new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => {
-        const dataUrl = r.result;
-        resolve(dataUrl.split(',')[1] || '');
-      };
-      r.onerror = () => reject(r.error);
-      r.readAsDataURL(file);
-    });
+    const path = folder + '/' + fname;
 
     const loadingT = toast('Subiendo ' + fname + '…', 'loading');
-    try {
-      await ghPutFile(path, b64, 'Upload ' + fname);
-      loadingT.remove();
-      toast('✓ Subido — disponible en ~1 min en Pages', 'success');
-      return { path, name: fname };
-    } catch (e) {
-      loadingT.remove();
-      toast('⚠ Error subiendo: ' + e.message, 'error');
+    const { error } = await sb.storage.from(BUCKET).upload(path, file, {
+      upsert: false,
+      contentType: file.type || undefined
+    });
+    loadingT.remove();
+    if (error) {
+      toast('⚠ Error subiendo: ' + error.message, 'error');
       return null;
     }
+    toast('✓ Subido', 'success');
+    return { path, name: fname };
   }
 
   async function refreshDocList(group) {
     const folder = GROUP_FOLDERS[group];
     const listEl = document.getElementById('doc-list-' + group);
     if (!listEl) return;
-    if (!hasToken()) { listEl.innerHTML = '<div class="doc-list-empty">Configura el token para listar documentos.</div>'; return; }
+    if (!authed) { listEl.innerHTML = '<div class="doc-list-empty">Inicia sesión para ver documentos.</div>'; return; }
     listEl.innerHTML = '<div class="doc-list-empty">Cargando…</div>';
     try {
-      const files = await ghListDir('Documents/' + folder);
+      const { data, error } = await sb.storage.from(BUCKET).list(folder, { limit: 100, sortBy: { column: 'name', order: 'desc' } });
+      if (error) throw error;
+      const files = (data || []).filter(f => f.name && !f.name.startsWith('.'));
       if (!files.length) { listEl.innerHTML = '<div class="doc-list-empty">Sin documentos aún.</div>'; return; }
       listEl.innerHTML = '';
       files.forEach(f => {
         const entry = document.createElement('div');
         entry.className = 'doc-entry';
         const a = document.createElement('a');
-        a.href = 'Documents/' + folder + '/' + f.name;
-        a.target = '_blank';
+        a.href = '#';
         a.rel = 'noopener';
         a.textContent = f.name;
+        a.onclick = (e) => { e.preventDefault(); openDoc(folder + '/' + f.name); };
         entry.appendChild(a);
         const del = document.createElement('button');
         del.className = 'doc-del';
@@ -1317,26 +1470,21 @@ if(sessionStorage.getItem('auth')==='1'){
         del.onclick = async () => {
           if (!confirm('¿Eliminar ' + f.name + '?')) return;
           const loadingT = toast('Eliminando…', 'loading');
-          try {
-            await ghDeleteFile('Documents/' + folder + '/' + f.name, f.sha, 'Delete ' + f.name);
-            loadingT.remove();
-            toast('✓ Eliminado', 'success');
-            // Clean any row-doc references pointing to this path
-            const fullPath = 'Documents/' + folder + '/' + f.name;
-            let dirty = false;
-            Object.keys(state.docs).forEach(k => { if (state.docs[k] === fullPath) { delete state.docs[k]; dirty = true; } });
-            if (dirty) { applyStateToUI(); queueSave(); }
-            refreshDocList(group);
-          } catch (e) {
-            loadingT.remove();
-            toast('⚠ Error: ' + e.message, 'error');
-          }
+          const fullPath = folder + '/' + f.name;
+          const { error: delErr } = await sb.storage.from(BUCKET).remove([fullPath]);
+          loadingT.remove();
+          if (delErr) { toast('⚠ Error: ' + delErr.message, 'error'); return; }
+          toast('✓ Eliminado', 'success');
+          let dirty = false;
+          Object.keys(state.docs).forEach(k => { if (state.docs[k] === fullPath) { delete state.docs[k]; dirty = true; } });
+          if (dirty) { applyStateToUI(); queueSave(); }
+          refreshDocList(group);
         };
         entry.appendChild(del);
         listEl.appendChild(entry);
       });
     } catch (e) {
-      listEl.innerHTML = '<div class="doc-list-empty">Error: ' + e.message + '</div>';
+      listEl.innerHTML = '<div class="doc-list-empty">Error: ' + (e.message || e) + '</div>';
     }
   }
 
@@ -1347,11 +1495,11 @@ if(sessionStorage.getItem('auth')==='1'){
       const folder = GROUP_FOLDERS[group];
 
       const uploader = document.createElement('label');
-      uploader.className = 'uploader' + (hasToken() ? '' : ' hidden');
+      uploader.className = 'uploader' + (authed ? '' : ' hidden');
       uploader.id = 'upl-' + group;
       uploader.innerHTML =
-        '<div>📎 Subir archivo o arrastra aquí → <strong>Documents/' + folder + '/</strong></div>' +
-        '<div class="u-hint">PDF o imagen · máx 100 MB</div>';
+        '<div>📎 Subir archivo o arrastra aquí → <strong>' + folder + '/</strong></div>' +
+        '<div class="u-hint">PDF o imagen · máx 50 MB</div>';
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'application/pdf,image/*';
@@ -1387,57 +1535,31 @@ if(sessionStorage.getItem('auth')==='1'){
     });
   }
 
-  // ---------- Settings modal ----------
+  // ---------- Settings modal (session) ----------
   const modal = document.getElementById('settings-modal');
-  const patInput = document.getElementById('pat-input');
-  const patErr = document.getElementById('pat-error');
   const navSettings = document.getElementById('nav-settings');
   const syncPill = document.getElementById('sync-pill');
+  const sessionEmailEl = document.getElementById('session-email');
 
-  navSettings.addEventListener('click', e => {
+  navSettings.addEventListener('click', async e => {
     e.preventDefault();
-    patInput.value = getToken() || '';
-    patErr.textContent = '';
+    const { data } = await sb.auth.getUser();
+    if (sessionEmailEl) sessionEmailEl.textContent = data && data.user ? 'Sesión: ' + data.user.email : '';
     modal.classList.add('open');
-    patInput.focus();
   });
-  document.getElementById('pat-cancel').onclick = () => modal.classList.remove('open');
+  document.getElementById('logout-cancel').onclick = () => modal.classList.remove('open');
   modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
-
-  document.getElementById('pat-save').onclick = async () => {
-    const t = patInput.value.trim();
-    patErr.textContent = '';
-    if (!t) { patErr.textContent = 'Introduce un token.'; return; }
-    patErr.textContent = 'Validando…';
-    const ok = await validateToken(t);
-    if (!ok) { patErr.textContent = 'Token inválido o sin permisos Contents:RW sobre este repo.'; return; }
-    setToken(t);
-    patErr.textContent = '';
-    modal.classList.remove('open');
-    toast('✓ Token guardado', 'success');
-    updateSyncPill();
-    await initialSync();
-    injectUploaderUI();
-    refreshAllDocs();
-    allBoxes.forEach(renderRowDoc);
-  };
-  document.getElementById('pat-clear').onclick = () => {
-    setToken(null);
-    patInput.value = '';
-    patErr.textContent = '';
-    updateSyncPill();
-    toast('Token borrado — modo solo-este-dispositivo', 'success');
-    // Hide uploaders & attach buttons
-    document.querySelectorAll('.uploader').forEach(u => u.classList.add('hidden'));
-    allBoxes.forEach(renderRowDoc);
+  document.getElementById('logout-btn').onclick = async () => {
+    await sb.auth.signOut();
+    location.reload();
   };
 
   function updateSyncPill() {
-    if (hasToken()) {
+    if (authed) {
       syncPill.textContent = '☁ Sincronizado';
       syncPill.classList.add('synced');
     } else {
-      syncPill.textContent = '📱 Solo este dispositivo';
+      syncPill.textContent = '📱 Local';
       syncPill.classList.remove('synced');
     }
   }
@@ -1446,37 +1568,61 @@ if(sessionStorage.getItem('auth')==='1'){
     Object.keys(GROUP_FOLDERS).forEach(refreshDocList);
   }
 
+  // ---------- Realtime ----------
+  function subscribeRealtime() {
+    if (!stateRowId) return;
+    sb.channel('app_state_changes')
+      .on('postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'app_state', filter: 'id=eq.' + stateRowId },
+          (payload) => {
+            const row = payload.new;
+            if (!row) return;
+            const remoteUpdated = row.updated_at ? new Date(row.updated_at).getTime() : 0;
+            if (remoteUpdated && Math.abs(remoteUpdated - lastSavedAt) < 2000) return;
+            state.tramites = row.tramites || {};
+            state.docs = normalizeDocs(row.docs);
+            saveLocal();
+            applyStateToUI();
+          })
+      .subscribe();
+  }
+
   // ---------- Init ----------
+  state = loadLocal();
+  applyStateToUI();
+
   async function initialSync() {
-    state = loadLocal();
-    if (hasToken()) {
-      try {
-        const remote = await loadRemote();
-        if (remote) {
-          state = remote;
-          saveLocal();
-        } else {
-          // No remote yet — push our local state as the initial commit
-          queueSave();
-        }
-      } catch (e) {
-        toast('⚠ No se pudo leer state.json: ' + e.message, 'error');
+    try {
+      const remote = await loadRemote();
+      if (remote) {
+        state = remote;
+        saveLocal();
+      } else if (stateRowId === null) {
+        toast('⚠ Falta la fila inicial en app_state', 'error');
       }
+    } catch (e) {
+      toast('⚠ No se pudo cargar: ' + (e.message || e), 'error');
     }
     applyStateToUI();
   }
 
-  (async function init() {
+  async function initAuthed() {
+    sb = window.sb;
+    authed = true;
     updateSyncPill();
     await initialSync();
-    if (hasToken()) {
-      injectUploaderUI();
-      refreshAllDocs();
-    } else {
-      // Still inject uploader scaffolding but keep hidden, so the toggle on token-save just unhides
-      injectUploaderUI();
-    }
-  })();
+    injectUploaderUI();
+    refreshAllDocs();
+    allBoxes.forEach(renderRowDoc);
+    subscribeRealtime();
+  }
+
+  if (window.__authReady) {
+    initAuthed();
+  } else {
+    window.addEventListener('auth-ready', initAuthed, { once: true });
+    updateSyncPill();
+  }
 })();
 
 // ========== SERVICE WORKER ==========
