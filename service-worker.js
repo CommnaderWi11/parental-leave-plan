@@ -1,4 +1,4 @@
-const VERSION = 'v7-doc-library';
+const VERSION = 'v8-journal-vacunas';
 const CACHE = 'paternidad-shell-' + VERSION;
 const SHELL = [
   './',

@@ -537,6 +537,73 @@ section { scroll-margin-top: 60px; }
 }
 .lib-add-btn:hover { border-color: var(--accent-purple-soft); color: var(--text); }
 
+/* Trámites search */
+.tramites-search { position: relative; margin-bottom: 14px; }
+.tramites-search input {
+  width: 100%; box-sizing: border-box;
+  padding: 12px 44px 12px 16px; border-radius: 12px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text); font-size: 15px; font-family: inherit;
+  min-height: 48px;
+}
+.tramites-search input:focus { outline: none; border-color: var(--accent-purple-soft); }
+.tramites-search-clear {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none; color: var(--text-muted);
+  font-size: 22px; cursor: pointer; padding: 8px 12px;
+}
+.tramites-search-clear:hover { color: var(--text); }
+
+/* Group collapse */
+.tramite-group.group-collapsed > * { display: none; }
+.tramite-group.group-collapsed > h3 { display: block; opacity: 0.75; }
+.tramite-group.group-collapsed > h3::after { content: ' ▸ (completado)'; font-size: 12px; color: var(--accent-green); font-weight: 500; }
+.tramite-group > h3 { user-select: none; }
+
+/* Toast undo button */
+.toast-undo {
+  background: transparent; border: 1px solid currentColor;
+  color: inherit; font-weight: 600; font-size: 12px;
+  padding: 4px 10px; border-radius: 999px; cursor: pointer;
+  margin-left: 8px; font-family: inherit;
+}
+.toast-undo:hover { background: rgba(255,255,255,0.1); }
+
+/* Journal notes */
+.journal-toggle {
+  background: transparent; border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text-secondary); font-size: 14px;
+  padding: 4px 8px; border-radius: 999px; margin-left: 6px; cursor: pointer;
+  font-family: inherit; min-height: 32px;
+}
+.journal-toggle:hover { border-color: var(--accent-purple-soft); }
+.journal-toggle.has-note { border-color: #fbbf24; color: #fcd34d; background: rgba(251,191,36,0.08); }
+.journal-panel {
+  background: rgba(255,255,255,0.02);
+  border-left: 2px solid #fcd34d;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px; margin: 2px 0 10px 22px;
+}
+.journal-textarea {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text); font-family: inherit; font-size: 13px;
+  padding: 10px 12px; resize: vertical; min-height: 60px;
+}
+.journal-textarea:focus { outline: none; border-color: #fcd34d; }
+.journal-meta { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+/* Tap-target bumps for mobile */
+.tramite-row input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; cursor: pointer; }
+@media (max-width: 768px) {
+  .nav-link { min-height: 44px; padding: 10px 14px !important; }
+  .tramite-row { min-height: 56px; }
+  .doc-pill, .lib-pill { min-height: 32px; font-size: 12px; }
+  .subtask-item { min-height: 44px; }
+}
+
 .aggregate-card { display: flex; align-items: center; gap: 18px; padding: 18px 22px; margin-bottom: 24px; }
 .aggregate-card .agg-num { font-size: 30px; font-weight: 800; color: var(--accent-purple); letter-spacing: -1px; white-space: nowrap; }
 .aggregate-card .agg-info { flex: 1; min-width: 0; }
@@ -915,6 +982,10 @@ window.sb.auth.getSession().then(({ data }) => {
   <!-- ========== TRÁMITES ========== -->
   <section id="tramites" class="tab-section">
     <div class="section-title">Trámites y Documentación</div>
+    <div class="tramites-search">
+      <input type="search" id="tramites-search-input" placeholder="🔍 Buscar trámite…" autocomplete="off">
+      <button class="tramites-search-clear" id="tramites-search-clear" title="Limpiar" style="display:none;">×</button>
+    </div>
 
     <!-- PREPARACIÓN (pre-parto) -->
     <div class="glass tramite-group" id="grp-preparacion">
@@ -1237,6 +1308,15 @@ window.TRAMITES = {
   'salud-7': { name: 'Vacuna 4 meses', meta: 'Centro de salud asignado',
                deadline: { kind: 'afterBirth', days: 120, label: '4 meses' }, scope: 'autonomica',
                dependsOn: ['salud-6'] },
+  'salud-8': { name: 'Vacuna 11 meses', meta: 'Hexavalente + Meningo C',
+               deadline: { kind: 'afterBirth', days: 330, label: '11 meses' }, scope: 'autonomica',
+               dependsOn: ['salud-7'] },
+  'salud-9': { name: 'Vacuna 12 meses', meta: 'Triple vírica + Meningo B + Varicela + Neumococo',
+               deadline: { kind: 'afterBirth', days: 365, label: '12 meses' }, scope: 'autonomica',
+               dependsOn: ['salud-8'] },
+  'salud-10': { name: 'Vacuna 15 meses', meta: 'Hepatitis A',
+                deadline: { kind: 'afterBirth', days: 456, label: '15 meses' }, scope: 'autonomica',
+                dependsOn: ['salud-9'] },
   // ---------- Ayudas económicas ----------
   'ayudas-0': { name: 'Deducción por maternidad AEAT (modelo 140)', meta: 'Agencia Tributaria · 100€/mes hasta 3 años · Solo madre trabajadora en alta SS',
                 deadline: { kind: 'afterBirth', days: 30, label: 'Primer mes tras alta' }, scope: 'nacional',
@@ -1268,7 +1348,7 @@ window.GROUPS = {
   inss:        { title: 'INSS / Seguridad Social — Prestación por Nacimiento', renderMode: 'html' },
   binter:      { title: 'Binter — Empresa / RRHH', renderMode: 'html' },
   bebe:        { title: '👶 Bebé — Admin', desc: 'Trámites administrativos del bebé tras el nacimiento.', renderMode: 'js', count: 7 },
-  salud:       { title: '🩺 Salud', desc: 'Seguimiento sanitario entre Vithas (parto) y SCS (post-parto La Laguna / LPGC).', renderMode: 'js', count: 8 },
+  salud:       { title: '🩺 Salud', desc: 'Seguimiento sanitario entre Vithas (parto) y SCS (post-parto La Laguna / LPGC). Calendario vacunal Canarias.', renderMode: 'js', count: 11 },
   ayudas:      { title: '💶 Ayudas económicas', desc: 'Deducciones y ayudas aplicables a nivel nacional, autonómico y municipal.', renderMode: 'js', count: 5 }
 };
 
@@ -1694,6 +1774,83 @@ window.fmtLongDate = function(d) {
   }
   renderSubtasks();
 
+  // Per-trámite journal notes
+  function renderJournalButtons() {
+    document.querySelectorAll('.tramite-row input[type="checkbox"]').forEach(box => {
+      const key = box.dataset.group + '-' + box.dataset.idx;
+      const row = box.closest('.tramite-row');
+      if (row.querySelector('.journal-toggle')) return;
+
+      const btn = document.createElement('button');
+      btn.className = 'journal-toggle';
+      btn.type = 'button';
+      btn.title = 'Notas';
+      btn.textContent = '📝';
+      row.appendChild(btn);
+
+      const panel = document.createElement('div');
+      panel.className = 'journal-panel';
+      panel.style.display = 'none';
+      const ta = document.createElement('textarea');
+      ta.className = 'journal-textarea';
+      ta.placeholder = 'Notas: personas contactadas, números de referencia, dudas, fechas de seguimiento…';
+      ta.rows = 3;
+      panel.appendChild(ta);
+      const meta = document.createElement('div');
+      meta.className = 'journal-meta';
+      panel.appendChild(meta);
+      row.parentNode.insertBefore(panel, row.nextSibling);
+
+      btn.addEventListener('click', () => {
+        const open = panel.style.display !== 'none';
+        panel.style.display = open ? 'none' : '';
+        if (!open) ta.focus();
+      });
+      ta.addEventListener('input', () => {
+        state.meta = state.meta || {};
+        state.meta.journal = state.meta.journal || {};
+        if (ta.value.trim()) {
+          state.meta.journal[key] = { note: ta.value, updatedAt: new Date().toISOString() };
+        } else {
+          delete state.meta.journal[key];
+        }
+        updateJournalDot(key);
+        queueSave();
+        updateJournalMeta(key, meta);
+      });
+    });
+  }
+  renderJournalButtons();
+
+  function applyJournalState() {
+    document.querySelectorAll('.journal-panel textarea').forEach(ta => {
+      const row = ta.closest('.journal-panel').previousElementSibling;
+      const box = row.querySelector('input[data-group]');
+      if (!box) return;
+      const key = box.dataset.group + '-' + box.dataset.idx;
+      const entry = ((state.meta || {}).journal || {})[key];
+      ta.value = entry ? entry.note : '';
+      const meta = ta.parentElement.querySelector('.journal-meta');
+      updateJournalMeta(key, meta);
+      updateJournalDot(key);
+    });
+  }
+  function updateJournalMeta(key, metaEl) {
+    const entry = ((state.meta || {}).journal || {})[key];
+    if (!metaEl) return;
+    if (!entry) { metaEl.textContent = ''; return; }
+    const d = new Date(entry.updatedAt);
+    metaEl.textContent = 'Última edición: ' + d.toLocaleDateString('es-ES') + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  }
+  function updateJournalDot(key) {
+    const row = document.querySelector('.tramite-row input[data-group="' + key.split('-')[0] + '"][data-idx="' + key.split('-').slice(1).join('-') + '"]');
+    if (!row) return;
+    const btn = row.closest('.tramite-row').querySelector('.journal-toggle');
+    if (!btn) return;
+    const has = !!((state.meta || {}).journal || {})[key];
+    btn.classList.toggle('has-note', has);
+  }
+
   function applySubtaskState() {
     document.querySelectorAll('.subtasks-panel input[type="checkbox"]').forEach(cb => {
       const tk = cb.dataset.tramite;
@@ -1908,15 +2065,19 @@ window.fmtLongDate = function(d) {
       renderUrgencyBadge(box);
     });
     applySubtaskState();
+    if (typeof applyJournalState === 'function') applyJournalState();
     renderDependencyState();
     groups.forEach(updateGroupProgress);
     updateAggregate();
     renderDashboard();
+    if (typeof autoCollapseCompleted === 'function') autoCollapseCompleted();
   }
 
+  let lastUndoToast = null;
   allBoxes.forEach(box => {
     box.addEventListener('change', function() {
       const key = this.dataset.group + '-' + this.dataset.idx;
+      const wasChecked = !this.checked;
       state.tramites[key] = this.checked;
       applyRowStyle(this);
       renderUrgencyBadge(this);
@@ -1924,9 +2085,85 @@ window.fmtLongDate = function(d) {
       updateGroupProgress(this.dataset.group);
       updateAggregate();
       renderDashboard();
+      autoCollapseCompleted();
       queueSave();
+      if (navigator.vibrate) navigator.vibrate(this.checked ? 25 : 10);
+      if (lastUndoToast) lastUndoToast.remove();
+      const self = this;
+      const msg = this.checked ? '✓ Marcado' : '↺ Desmarcado';
+      const t = toast(msg + ' · Deshacer', 'success');
+      const undo = document.createElement('button');
+      undo.textContent = 'Deshacer';
+      undo.className = 'toast-undo';
+      undo.onclick = () => {
+        self.checked = wasChecked;
+        self.dispatchEvent(new Event('change'));
+        t.remove();
+      };
+      t.appendChild(undo);
+      lastUndoToast = t;
     });
   });
+
+  function autoCollapseCompleted() {
+    Object.keys(window.GROUPS || {}).forEach(groupKey => {
+      const grpEl = document.getElementById('grp-' + groupKey);
+      if (!grpEl) return;
+      const boxes = grpEl.querySelectorAll('input[type="checkbox"][data-group]');
+      if (!boxes.length) return;
+      const allDone = Array.from(boxes).every(b => b.checked);
+      if (allDone && !grpEl.dataset.manualExpand) grpEl.classList.add('group-collapsed');
+      else if (!allDone) grpEl.classList.remove('group-collapsed');
+    });
+  }
+
+  // Make group <h3> click toggle collapsed state (manual override)
+  document.querySelectorAll('.tramite-group > h3').forEach(h3 => {
+    h3.style.cursor = 'pointer';
+    h3.addEventListener('click', () => {
+      const grp = h3.parentElement;
+      if (grp.classList.toggle('group-collapsed')) delete grp.dataset.manualExpand;
+      else grp.dataset.manualExpand = '1';
+    });
+  });
+
+  // Trámites search
+  const searchInput = document.getElementById('tramites-search-input');
+  const searchClear = document.getElementById('tramites-search-clear');
+  function applySearchFilter(q) {
+    q = (q || '').trim().toLowerCase();
+    searchClear.style.display = q ? '' : 'none';
+    const allRows = document.querySelectorAll('.tramite-row');
+    if (!q) {
+      allRows.forEach(r => r.style.display = '');
+      document.querySelectorAll('.tramite-group').forEach(g => g.style.display = '');
+      document.querySelectorAll('.subtasks-panel').forEach(p => { p.style.display = 'none'; });
+      return;
+    }
+    const groupCounts = new Map();
+    allRows.forEach(r => {
+      const cb = r.querySelector('input[data-group]');
+      if (!cb) return;
+      const key = cb.dataset.group + '-' + cb.dataset.idx;
+      const t = window.TRAMITES[key] || {};
+      const name = (r.querySelector('.name')?.textContent || t.name || '').toLowerCase();
+      const meta = (r.querySelector('.meta')?.textContent || t.meta || '').toLowerCase();
+      const subs = (t.subtasks || []).map(s => s.label).join(' ').toLowerCase();
+      const hit = name.includes(q) || meta.includes(q) || subs.includes(q);
+      r.style.display = hit ? '' : 'none';
+      const grp = cb.dataset.group;
+      groupCounts.set(grp, (groupCounts.get(grp) || 0) + (hit ? 1 : 0));
+    });
+    document.querySelectorAll('.tramite-group').forEach(g => {
+      const grpKey = g.id.replace('grp-', '');
+      g.style.display = (groupCounts.get(grpKey) || 0) ? '' : 'none';
+      g.classList.remove('group-collapsed');
+    });
+  }
+  if (searchInput) {
+    searchInput.addEventListener('input', e => applySearchFilter(e.target.value));
+    searchClear.addEventListener('click', () => { searchInput.value = ''; applySearchFilter(''); searchInput.focus(); });
+  }
 
   // ---------- Per-row attach ----------
   function renderRowDoc(box) {
