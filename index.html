@@ -397,6 +397,34 @@ section { scroll-margin-top: 60px; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* Aggregate progress card */
+.urgent-banner {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, rgba(239,68,68,0.22), rgba(251,113,133,0.18));
+  border: 1px solid rgba(239,68,68,0.5);
+  color: #fca5a5;
+  padding: 12px 16px; border-radius: 14px;
+  font-weight: 600; font-size: 14px;
+  cursor: pointer; user-select: none;
+  margin-bottom: 14px;
+  animation: urgent-pulse 2.4s ease-in-out infinite;
+}
+.urgent-banner:hover { background: linear-gradient(135deg, rgba(239,68,68,0.3), rgba(251,113,133,0.25)); }
+.urgent-banner .urgent-text { flex: 1; }
+.urgent-banner .urgent-arrow { font-size: 18px; opacity: 0.8; }
+.urgent-banner .urgent-x { background: transparent; border: none; color: inherit; opacity: 0.6; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+.urgent-banner .urgent-x:hover { opacity: 1; }
+@keyframes urgent-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.0); } 50% { box-shadow: 0 0 0 4px rgba(239,68,68,0.15); } }
+
+.birth-toggle {
+  margin-top: auto; align-self: flex-start;
+  background: transparent; border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text-secondary); font-size: 11px; font-weight: 500;
+  padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  font-family: inherit; transition: all 0.15s;
+}
+.birth-toggle:hover { border-color: var(--accent-purple-soft); color: var(--text); }
+.countdown-card.post-birth .birth-toggle { color: var(--accent-green); border-color: rgba(74,222,128,0.3); }
+
 .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .dash-card { padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; min-height: 118px; }
 .dash-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; }
@@ -626,11 +654,17 @@ window.sb.auth.getSession().then(({ data }) => {
 
   <!-- ========== RESUMEN ========== -->
   <section id="resumen" class="tab-section active">
+    <div class="urgent-banner" id="urgent-banner" style="display:none;">
+      <span class="urgent-text">⚠ Urgente esta semana</span>
+      <span class="urgent-arrow">→</span>
+      <button class="urgent-x" id="urgent-dismiss" title="Ocultar hasta cerrar sesión">×</button>
+    </div>
     <div class="dashboard">
       <div class="glass dash-card countdown-card" id="countdown-card">
         <div class="dash-label">Luca</div>
         <div class="dash-big" id="countdown-num">—</div>
         <div class="dash-sub" id="countdown-sub">días para la EDD</div>
+        <button class="btn-link birth-toggle" id="birth-toggle-btn">¿Ya nació? · Registrar fecha</button>
       </div>
       <div class="glass dash-card next-action-card" id="next-action-card">
         <div class="dash-label">Próxima acción</div>
@@ -785,6 +819,27 @@ window.sb.auth.getSession().then(({ data }) => {
   <section id="tramites" class="tab-section">
     <div class="section-title">Trámites y Documentación</div>
 
+    <!-- PREPARACIÓN (pre-parto) -->
+    <div class="glass tramite-group" id="grp-preparacion">
+      <h3>🎒 Preparación pre-parto</h3>
+      <p class="group-desc">Tareas críticas antes del nacimiento. Parto previsto en Vithas Ciudad Jardín (Las Palmas de GC).</p>
+      <div class="progress-label" id="prog-label-preparacion">0 / 4 completados</div>
+      <div class="progress-track"><div class="progress-fill" id="prog-preparacion" style="width:0%"></div></div>
+
+      <div class="tramite-row"><input type="checkbox" data-group="preparacion" data-idx="0">
+        <div class="tramite-info"><div class="name">Bolsa hospital preparada</div><div class="meta">Vithas · Mamá + bebé + acompañante · Lista 7 d antes EDD</div><span class="doc-slot" data-folder="Hospital"></span></div>
+        <span class="badge badge-pending">Pendiente</span></div>
+      <div class="tramite-row"><input type="checkbox" data-group="preparacion" data-idx="1">
+        <div class="tramite-info"><div class="name">Silla de coche homologada i-Size (grupo 0+)</div><div class="meta">Obligatoria al alta · Instalada y probada 7 d antes EDD</div><span class="doc-slot" data-folder="Hospital"></span></div>
+        <span class="badge badge-pending">Pendiente</span></div>
+      <div class="tramite-row"><input type="checkbox" data-group="preparacion" data-idx="2">
+        <div class="tramite-info"><div class="name">Plan de parto a Vithas</div><div class="meta">Semana 36-37 · Entregar al equipo de matronas de Vithas</div><span class="doc-slot" data-folder="Hospital"></span></div>
+        <span class="badge badge-pending">Pendiente</span></div>
+      <div class="tramite-row"><input type="checkbox" data-group="preparacion" data-idx="3">
+        <div class="tramite-info"><div class="name">Logística hermano mayor durante parto</div><div class="meta">Luther King La Laguna · Coordinar recogida/pernocta · 3 d antes EDD</div><span class="doc-slot" data-folder="Hospital"></span></div>
+        <span class="badge badge-pending">Pendiente</span></div>
+    </div>
+
     <!-- REGISTRO CIVIL -->
     <div class="glass tramite-group" id="grp-registro">
       <h3>Registro Civil — Inscripción de Nacimiento</h3>
@@ -887,6 +942,21 @@ window.sb.auth.getSession().then(({ data }) => {
   </div>
 </div>
 
+<!-- ========== BIRTH MODAL ========== -->
+<div class="modal-backdrop" id="birth-modal">
+  <div class="modal">
+    <h3>👶 Registrar nacimiento</h3>
+    <p>Marca la fecha real de nacimiento de Luca. Todos los plazos posteriores se recalcularán desde esta fecha.</p>
+    <label style="display:block;font-size:12px;color:var(--text-muted);margin-top:14px;margin-bottom:6px;">Fecha de nacimiento</label>
+    <input type="date" id="birth-date-input" min="2026-03-01" max="2026-06-30" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#f0eef5;font-size:15px;font-family:inherit;">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="birth-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="birth-save">Guardar</button>
+      <button class="btn btn-danger" id="birth-clear" style="display:none;">Borrar (aún no nació)</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== TOAST HOST ========== -->
 <div id="toast-host"></div>
 
@@ -896,6 +966,15 @@ window.sb.auth.getSession().then(({ data }) => {
 <script>
 // ========== DEADLINE ENGINE ==========
 window.BIRTH_EDD = new Date(2026, 3, 20); // 20 Apr 2026
+window.birthActual = null; // set when "Ya nació" toggled, YYYY-MM-DD string
+window.getBirthAnchor = function() {
+  if (window.birthActual) {
+    const [y, m, d] = window.birthActual.split('-').map(n => parseInt(n, 10));
+    return new Date(y, m - 1, d);
+  }
+  return window.BIRTH_EDD;
+};
+window.isBornYet = function() { return !!window.birthActual; };
 
 window.BLOQUE_STARTS = {
   1: new Date(2026, 3, 20),   // obligatorio
@@ -908,8 +987,13 @@ window.BLOQUE_STARTS = {
 // Rules per trámite key (group-idx). Each rule resolves to an absolute date.
 // kinds: absolute | afterBirth (days) | beforeBloque (n, days) | beforeEDD (days)
 window.TRAMITE_DEADLINES = {
+  // Preparación (pre-parto, priority critical)
+  'preparacion-0': { kind: 'beforeEDD', days: 7,  label: 'Lista 7 d antes EDD', priority: 'critical' }, // Bolsa hospital
+  'preparacion-1': { kind: 'beforeEDD', days: 7,  label: 'Instalada 7 d antes EDD', priority: 'critical' }, // Silla coche
+  'preparacion-2': { kind: 'beforeEDD', days: 14, label: 'Presentar semana 36-37', priority: 'high' }, // Plan de parto
+  'preparacion-3': { kind: 'beforeEDD', days: 3,  label: 'Coordinar 3 d antes EDD', priority: 'high' }, // Logística hermano
   // Registro Civil
-  'registro-0': { kind: 'afterBirth', days: 3, label: '72h tras nacimiento' },     // Parte médico
+  'registro-0': { kind: 'afterBirth', days: 3, label: '72h tras nacimiento', priority: 'critical' },     // Parte médico
   'registro-1': { kind: 'afterBirth', days: 10, label: '10 días tras nacimiento' }, // DNI copias (con inscripción)
   'registro-2': { kind: 'afterBirth', days: 10, label: '10 días tras nacimiento' }, // Libro de Familia
   'registro-3': { kind: 'afterBirth', days: 10, label: '10 días (max 30)' },       // Declaración si hospital no tramitó
@@ -932,7 +1016,7 @@ window.resolveDeadline = function(key) {
   if (!rule) return null;
   let d = null;
   if (rule.kind === 'absolute') d = new Date(rule.date);
-  else if (rule.kind === 'afterBirth') { d = new Date(window.BIRTH_EDD); d.setDate(d.getDate() + rule.days); }
+  else if (rule.kind === 'afterBirth') { d = new Date(window.getBirthAnchor()); d.setDate(d.getDate() + rule.days); }
   else if (rule.kind === 'beforeEDD') { d = new Date(window.BIRTH_EDD); d.setDate(d.getDate() - rule.days); }
   else if (rule.kind === 'beforeBloque') { const b = window.BLOQUE_STARTS[rule.bloque]; if (!b) return null; d = new Date(b); d.setDate(d.getDate() - rule.days); }
   if (!d) return null;
@@ -1084,6 +1168,7 @@ window.fmtLongDate = function(d) {
   const BUCKET = 'documents';
 
   const GROUP_FOLDERS = {
+    preparacion: 'Hospital',
     registro: 'Registro-Civil',
     inss: 'INSS',
     binter: 'Binter'
@@ -1115,7 +1200,7 @@ window.fmtLongDate = function(d) {
   }
 
   // ---------- State ----------
-  let state = { tramites: {}, docs: {} };
+  let state = { tramites: {}, docs: {}, meta: {}, subtasks: {} };
 
   function stripLegacyPrefix(p) {
     if (typeof p !== 'string') return p;
@@ -1126,17 +1211,25 @@ window.fmtLongDate = function(d) {
     Object.keys(docs || {}).forEach(k => { out[k] = stripLegacyPrefix(docs[k]); });
     return out;
   }
+  function syncBirthActualToWindow() {
+    window.birthActual = (state.meta && state.meta.birthActual) || null;
+  }
 
   function loadLocal() {
     try {
       const s = JSON.parse(localStorage.getItem(LOCAL_STATE_KEY) || 'null');
-      if (s && typeof s === 'object') return { tramites: s.tramites || {}, docs: normalizeDocs(s.docs) };
+      if (s && typeof s === 'object') return {
+        tramites: s.tramites || {},
+        docs: normalizeDocs(s.docs),
+        meta: s.meta || {},
+        subtasks: s.subtasks || {}
+      };
     } catch {}
     try {
       const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY) || 'null');
-      if (legacy && typeof legacy === 'object') return { tramites: legacy, docs: {} };
+      if (legacy && typeof legacy === 'object') return { tramites: legacy, docs: {}, meta: {}, subtasks: {} };
     } catch {}
-    return { tramites: {}, docs: {} };
+    return { tramites: {}, docs: {}, meta: {}, subtasks: {} };
   }
   function saveLocal() { localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(state)); }
 
@@ -1145,7 +1238,12 @@ window.fmtLongDate = function(d) {
     if (error) throw error;
     if (!data) return null;
     stateRowId = data.id;
-    return { tramites: data.tramites || {}, docs: normalizeDocs(data.docs) };
+    return {
+      tramites: data.tramites || {},
+      docs: normalizeDocs(data.docs),
+      meta: data.meta || {},
+      subtasks: data.subtasks || {}
+    };
   }
 
   let saveTimer = null;
@@ -1165,6 +1263,8 @@ window.fmtLongDate = function(d) {
     const { error } = await sb.from('app_state').update({
       tramites: state.tramites,
       docs: state.docs,
+      meta: state.meta || {},
+      subtasks: state.subtasks || {},
       updated_at: now
     }).eq('id', stateRowId);
     if (pendingToast) pendingToast.remove();
@@ -1248,14 +1348,59 @@ window.fmtLongDate = function(d) {
     badge.title = 'Límite: ' + window.fmtLongDate(dl.date) + ' · ' + dl.label;
   }
 
+  function renderUrgentBanner() {
+    const banner = document.getElementById('urgent-banner');
+    if (!banner) return;
+    if (sessionStorage.getItem('urgent-banner-dismissed') === '1') { banner.style.display = 'none'; return; }
+    const items = [];
+    allBoxes.forEach(box => {
+      if (box.checked) return;
+      const key = box.dataset.group + '-' + box.dataset.idx;
+      const dl = window.resolveDeadline(key);
+      if (!dl) return;
+      const rule = window.TRAMITE_DEADLINES[key] || {};
+      const isCritical = rule.priority === 'critical';
+      if (dl.daysUntil <= 3 || (isCritical && dl.daysUntil <= 7)) {
+        items.push({ key, dl, box, isCritical });
+      }
+    });
+    if (!items.length) { banner.style.display = 'none'; return; }
+    items.sort((a,b) => a.dl.daysUntil - b.dl.daysUntil);
+    const overdue = items.filter(i => i.dl.daysUntil < 0).length;
+    const label = overdue ? '⚠ ' + overdue + ' vencido' + (overdue>1?'s':'') + ' · ' + items.length + ' urgente' + (items.length>1?'s':'') : '⚠ ' + items.length + ' urgente' + (items.length>1?'s':'') + ' esta semana';
+    banner.querySelector('.urgent-text').textContent = label;
+    banner.style.display = '';
+    banner.onclick = () => {
+      const top = items[0];
+      const tab = document.querySelector('.nav-link[href="#tramites"]');
+      if (tab) tab.click();
+      setTimeout(() => {
+        top.box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const row = top.box.closest('.tramite-row');
+        if (row) { row.style.boxShadow = '0 0 0 2px #ef4444'; setTimeout(() => { row.style.boxShadow = ''; }, 1800); }
+      }, 120);
+    };
+  }
+
   function renderDashboard() {
     const today = new Date(); today.setHours(0,0,0,0);
-    const edd = window.BIRTH_EDD;
-    const daysToEdd = Math.round((edd - today) / 86400000);
     const ccard = document.getElementById('countdown-card');
     const cnum = document.getElementById('countdown-num');
     const csub = document.getElementById('countdown-sub');
+
     if (cnum && csub && ccard) {
+      if (window.isBornYet()) {
+        const birth = window.getBirthAnchor();
+        const ageDays = Math.round((today - birth) / 86400000);
+        ccard.classList.add('post-birth');
+        if (ageDays === 0) { cnum.textContent = '¡Hoy!'; csub.textContent = 'Luca nació hoy 🎉'; }
+        else if (ageDays < 0) { cnum.textContent = Math.abs(ageDays); csub.textContent = 'días hasta el nacimiento registrado'; }
+        else if (ageDays < 30) { cnum.textContent = ageDays; csub.textContent = ageDays === 1 ? 'día de vida' : 'días de vida'; }
+        else if (ageDays < 365) { const m = Math.floor(ageDays/30); cnum.textContent = m + 'm'; csub.textContent = 'meses (aprox) · ' + ageDays + ' d'; }
+        else { const y = Math.floor(ageDays/365); cnum.textContent = y + 'a'; csub.textContent = ageDays + ' d de vida'; }
+      } else {
+      const edd = window.BIRTH_EDD;
+      const daysToEdd = Math.round((edd - today) / 86400000);
       if (daysToEdd > 0) {
         cnum.textContent = daysToEdd;
         csub.textContent = daysToEdd === 1 ? 'día para la EDD (20 abr 2026)' : 'días para la EDD (20 abr 2026)';
@@ -1269,7 +1414,9 @@ window.fmtLongDate = function(d) {
         csub.textContent = Math.abs(daysToEdd) === 1 ? 'día desde la EDD' : 'días desde la EDD';
         ccard.classList.add('post-birth');
       }
+      }
     }
+    renderUrgentBanner();
 
     const title = document.getElementById('next-action-title');
     const meta = document.getElementById('next-action-meta');
@@ -1535,6 +1682,50 @@ window.fmtLongDate = function(d) {
     });
   }
 
+  // ---------- Birth modal ----------
+  const birthModal = document.getElementById('birth-modal');
+  const birthBtn = document.getElementById('birth-toggle-btn');
+  const birthInput = document.getElementById('birth-date-input');
+  if (birthBtn) {
+    birthBtn.addEventListener('click', () => {
+      birthInput.value = (state.meta && state.meta.birthActual) || '';
+      document.getElementById('birth-clear').style.display = window.isBornYet() ? '' : 'none';
+      birthModal.classList.add('open');
+    });
+  }
+  birthModal && birthModal.addEventListener('click', e => { if (e.target === birthModal) birthModal.classList.remove('open'); });
+  document.getElementById('birth-cancel').onclick = () => birthModal.classList.remove('open');
+  document.getElementById('birth-save').onclick = () => {
+    const v = birthInput.value;
+    if (!v) { toast('⚠ Selecciona una fecha', 'error'); return; }
+    state.meta = state.meta || {};
+    state.meta.birthActual = v;
+    syncBirthActualToWindow();
+    birthModal.classList.remove('open');
+    applyStateToUI();
+    queueSave();
+    toast('✓ Nacimiento registrado — recalculando plazos', 'success');
+    if (navigator.vibrate) navigator.vibrate(30);
+  };
+  document.getElementById('birth-clear').onclick = () => {
+    if (!confirm('¿Borrar la fecha de nacimiento? Los plazos volverán a anclarse a la EDD.')) return;
+    state.meta = state.meta || {};
+    delete state.meta.birthActual;
+    syncBirthActualToWindow();
+    birthModal.classList.remove('open');
+    applyStateToUI();
+    queueSave();
+    toast('Fecha de nacimiento borrada', 'success');
+  };
+
+  // ---------- Urgent banner dismiss ----------
+  const urgDismiss = document.getElementById('urgent-dismiss');
+  if (urgDismiss) urgDismiss.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sessionStorage.setItem('urgent-banner-dismissed', '1');
+    document.getElementById('urgent-banner').style.display = 'none';
+  });
+
   // ---------- Settings modal (session) ----------
   const modal = document.getElementById('settings-modal');
   const navSettings = document.getElementById('nav-settings');
@@ -1581,6 +1772,9 @@ window.fmtLongDate = function(d) {
             if (remoteUpdated && Math.abs(remoteUpdated - lastSavedAt) < 2000) return;
             state.tramites = row.tramites || {};
             state.docs = normalizeDocs(row.docs);
+            state.meta = row.meta || {};
+            state.subtasks = row.subtasks || {};
+            syncBirthActualToWindow();
             saveLocal();
             applyStateToUI();
           })
@@ -1589,6 +1783,7 @@ window.fmtLongDate = function(d) {
 
   // ---------- Init ----------
   state = loadLocal();
+  syncBirthActualToWindow();
   applyStateToUI();
 
   async function initialSync() {
@@ -1596,6 +1791,7 @@ window.fmtLongDate = function(d) {
       const remote = await loadRemote();
       if (remote) {
         state = remote;
+        syncBirthActualToWindow();
         saveLocal();
       } else if (stateRowId === null) {
         toast('⚠ Falta la fila inicial en app_state', 'error');

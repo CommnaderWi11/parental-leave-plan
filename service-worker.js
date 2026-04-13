@@ -1,4 +1,4 @@
-const VERSION = 'v3-dashboard';
+const VERSION = 'v4-preparacion';
 const CACHE = 'paternidad-shell-' + VERSION;
 const SHELL = [
   './',
