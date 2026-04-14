@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plan de Paternidad + Vacaciones 2026–2027 — Luca</title>
+<title>Misión: Luca (Miguel?)</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1a0533">
+<meta name="theme-color" content="#1a0533" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5f3ff" media="(prefers-color-scheme: light)">
+<meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Luca 2026">
+<meta name="apple-mobile-web-app-title" content="Luca / Miguel 2026">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,11 +18,18 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ============================================
-   CSS CUSTOM PROPERTIES — DARK ONLY
+   CSS CUSTOM PROPERTIES — THEMED
    ============================================ */
 :root {
+  color-scheme: light dark;
   --bg: #0a0a1a;
   --bg-gradient: linear-gradient(135deg, #1a0533 0%, #0f1b3d 40%, #0a2a4a 70%, #132743 100%);
+  --mission-bg: var(--glass-bg);
+  --mission-border: var(--glass-border);
+  --mission-label: var(--text-secondary);
+  --mission-sep: var(--accent-purple-soft);
+  --mission-accent: var(--accent-purple);
+  --mission-scanline: rgba(167,139,250,0.05);
   --orb-opacity: 0.35;
   --glass-bg: rgba(255,255,255,0.06);
   --glass-border: rgba(255,255,255,0.1);
@@ -32,6 +41,7 @@
   --nav-bg: rgba(15,10,30,0.75);
   --nav-active: rgba(167,139,250,0.2);
   --nav-active-text: #c4b5fd;
+  --nav-link-text: rgba(255,255,255,0.72);
   --accent-purple: #c4b5fd;
   --accent-purple-soft: #a78bfa;
   --accent-green: #6ee7b7;
@@ -67,6 +77,68 @@
   --alert-text: #fbbf24;
   --timeline-line: rgba(255,255,255,0.08);
   --print-border: #ddd;
+}
+
+/* ============================================
+   LIGHT THEME — follows system preference
+   ============================================ */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f5fb;
+    --bg-gradient: linear-gradient(135deg, #efeaff 0%, #e7ecff 40%, #e8f3ff 70%, #eef2fb 100%);
+    --orb-opacity: 0.22;
+    --glass-bg: rgba(255,255,255,0.72);
+    --glass-border: rgba(30,20,60,0.08);
+    --glass-hover-border: rgba(30,20,60,0.18);
+    --glass-shadow: 0 8px 32px rgba(80,60,160,0.08);
+    --text: #1a1438;
+    --text-secondary: rgba(26,20,56,0.65);
+    --text-muted: rgba(26,20,56,0.45);
+    --nav-bg: rgba(255,255,255,0.92);
+    --nav-active: rgba(109,40,217,0.16);
+    --nav-active-text: #4c1d95;
+    --nav-link-text: #1a1438;
+    --accent-purple: #6d28d9;
+    --accent-purple-soft: #7c3aed;
+    --accent-green: #059669;
+    --accent-green-soft: #10b981;
+    --accent-orange: #c2410c;
+    --accent-orange-soft: #ea580c;
+    --accent-pink: #be185d;
+    --accent-pink-soft: #db2777;
+    --accent-blue: #1d4ed8;
+    --cal-workday-bg: rgba(30,20,60,0.04);
+    --cal-workday-text: rgba(26,20,56,0.55);
+    --cal-weekend-bg: rgba(30,20,60,0.02);
+    --cal-weekend-text: rgba(26,20,56,0.3);
+    --cal-mandatory-bg: rgba(124,58,237,0.6);
+    --cal-mandatory-text: #fff;
+    --cal-parental-bg: rgba(124,58,237,0.22);
+    --cal-parental-text: #4c1d95;
+    --cal-annual-bg: rgba(16,185,129,0.45);
+    --cal-annual-text: #064e3b;
+    --cal-trip-ring: #e11d48;
+    --cal-shift-ring: #ca8a04;
+    --cal-school-border: #ea580c;
+    --cal-annual-overlay: #10b981;
+    --cal-baby-bg: #e11d48;
+    --badge-pending-bg: rgba(202,138,4,0.16);
+    --badge-pending-text: #a16207;
+    --badge-done-bg: rgba(5,150,105,0.16);
+    --badge-done-text: #047857;
+    --progress-gradient: linear-gradient(90deg, #7c3aed, #10b981);
+    --progress-track: rgba(30,20,60,0.08);
+    --alert-bg: rgba(202,138,4,0.12);
+    --alert-border: #d97706;
+    --alert-text: #a16207;
+    --timeline-line: rgba(30,20,60,0.1);
+    --mission-bg: var(--glass-bg);
+    --mission-border: var(--glass-border);
+    --mission-label: var(--text-secondary);
+    --mission-sep: var(--accent-purple-soft);
+    --mission-accent: var(--accent-purple);
+    --mission-scanline: rgba(109,40,217,0.05);
+  }
 }
 
 /* ============================================
@@ -145,7 +217,7 @@ body::after {
 .nav-inner::-webkit-scrollbar { display: none; }
 .nav-link {
   flex-shrink: 0;
-  font-size: 12px; font-weight: 600; color: var(--text-secondary);
+  font-size: 12px; font-weight: 600; color: var(--nav-link-text);
   text-decoration: none;
   padding: 6px 14px; border-radius: 100px;
   transition: background 0.2s, color 0.2s;
@@ -416,14 +488,102 @@ section { scroll-margin-top: 60px; }
 @keyframes urgent-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.0); } 50% { box-shadow: 0 0 0 4px rgba(239,68,68,0.15); } }
 
 .birth-toggle {
-  margin-top: auto; align-self: flex-start;
-  background: transparent; border: 1px solid rgba(255,255,255,0.15);
-  color: var(--text-secondary); font-size: 11px; font-weight: 500;
-  padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  align-self: flex-start;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  color: var(--text-secondary); font-size: 12px; font-weight: 600;
+  padding: 7px 14px; border-radius: 999px; cursor: pointer;
   font-family: inherit; transition: all 0.15s;
 }
-.birth-toggle:hover { border-color: var(--accent-purple-soft); color: var(--text); }
-.countdown-card.post-birth .birth-toggle { color: var(--accent-green); border-color: rgba(74,222,128,0.3); }
+.birth-toggle:hover { border-color: var(--accent-purple-soft); color: var(--accent-purple); }
+.countdown-card.post-birth .birth-toggle:hover { border-color: var(--cal-baby-bg, #ff2d55); color: var(--cal-baby-bg, #ff2d55); }
+
+/* ======== NASA-style Mission Countdown ======== */
+#mission-countdown-section { margin-bottom: 24px; }
+body[data-tab]:not([data-tab="resumen"]) #mission-countdown-section { margin-bottom: 12px; }
+body[data-tab]:not([data-tab="resumen"]) .mission-countdown { padding: 10px 14px; max-width: 360px; margin-left: auto; margin-right: auto; }
+body[data-tab]:not([data-tab="resumen"]) .mission-header .mission-status,
+body[data-tab]:not([data-tab="resumen"]) #countdown-sub,
+body[data-tab]:not([data-tab="resumen"]) #birth-toggle-btn,
+body[data-tab]:not([data-tab="resumen"]) .mission-footer { display: none !important; }
+body[data-tab]:not([data-tab="resumen"]) .mission-header { margin-bottom: 4px; }
+body[data-tab]:not([data-tab="resumen"]) .mission-label { font-size: 12px; }
+body[data-tab]:not([data-tab="resumen"]) .seg-num { font-size: 22px; }
+body[data-tab]:not([data-tab="resumen"]) .seg-lbl { font-size: 9px; }
+body[data-tab]:not([data-tab="resumen"]) .clock-sign,
+body[data-tab]:not([data-tab="resumen"]) .clock-sep { font-size: 16px; }
+body[data-tab]:not([data-tab="resumen"]) .clock-seg { min-width: 0; }
+body[data-tab]:not([data-tab="resumen"]) .mission-clock { gap: 4px; padding: 4px 0 2px; flex-wrap: nowrap; }
+body[data-tab]:not([data-tab="resumen"]) .clock-sign { margin-right: 2px; opacity: 1; }
+.mission-countdown {
+  padding: 22px 24px;
+  background: var(--mission-bg);
+  border: 1px solid var(--mission-border);
+  border-radius: 22px;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.mission-countdown::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(0deg, var(--mission-scanline) 0, var(--mission-scanline) 1px, transparent 1px, transparent 4px);
+  pointer-events: none; opacity: 0.6;
+}
+.mission-header {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
+  color: var(--mission-accent); margin-bottom: 16px;
+}
+.mission-header .mission-label { color: var(--text-muted); flex: 1; font-weight: 600; }
+.mission-header .mission-status { font-weight: 700; color: var(--mission-accent); }
+.mission-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--mission-accent); box-shadow: 0 0 10px var(--mission-accent), 0 0 20px var(--accent-purple-soft);
+  animation: mission-pulse 1.6s ease-in-out infinite;
+}
+@keyframes mission-pulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: 0.45; transform: scale(0.85);} }
+.mission-clock {
+  display: flex; align-items: flex-end; justify-content: center; gap: 8px;
+  font-family: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+  padding: 8px 0 4px;
+}
+.clock-sign {
+  font-size: 24px; font-weight: 700; color: var(--accent-purple); margin-right: 4px;
+  align-self: center; opacity: 0.7;
+}
+.clock-seg { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+.seg-num {
+  font-size: clamp(40px, 9vw, 64px); font-weight: 800; line-height: 1;
+  color: var(--text); letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+.seg-lbl {
+  font-size: 10px; letter-spacing: 2.5px; color: var(--text-muted);
+  margin-top: 10px; text-transform: uppercase; font-weight: 600;
+}
+.clock-sep {
+  font-size: clamp(34px, 8vw, 56px); font-weight: 300; color: var(--accent-purple-soft);
+  line-height: 1; padding-bottom: 20px; opacity: 0.5;
+  animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink { 50% { opacity: 0.15; } }
+.mission-footer {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--glass-border);
+  font-size: 13px; color: var(--text-secondary);
+}
+.countdown-card.post-birth { border-color: rgba(255,45,85,0.35); }
+.countdown-card.post-birth .seg-num { color: var(--cal-baby-bg, #ff2d55); }
+.countdown-card.post-birth .clock-sep,
+.countdown-card.post-birth .clock-sign { color: var(--cal-baby-bg, #ff2d55); }
+.countdown-card.post-birth .mission-dot { background: var(--cal-baby-bg, #ff2d55); box-shadow: 0 0 10px var(--cal-baby-bg, #ff2d55), 0 0 20px rgba(255,45,85,0.6); }
+.countdown-card.post-birth .mission-header,
+.countdown-card.post-birth .mission-header .mission-status { color: var(--cal-baby-bg, #ff2d55); }
+@media (max-width: 520px) {
+  .clock-seg { min-width: 48px; }
+  .mission-countdown { padding: 16px; }
+  .mission-footer { flex-direction: column; align-items: flex-start; }
+}
 
 .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .dash-card { padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; min-height: 118px; }
@@ -790,8 +950,7 @@ window.sb.auth.getSession().then(({ data }) => {
   <div class="nav-inner">
     <a href="#resumen" class="nav-link active">Resumen</a>
     <a href="#calendario" class="nav-link">Calendario</a>
-    <a href="#bloques" class="nav-link">Bloques</a>
-    <a href="#vacaciones" class="nav-link">Vacaciones</a>
+    <a href="#bloques" class="nav-link">Permisos & Vacaciones</a>
     <a href="#tramites" class="nav-link">Trámites</a>
     <a href="#documentos" class="nav-link">Docs</a>
     <a href="#notas" class="nav-link">Notas</a>
@@ -804,15 +963,32 @@ window.sb.auth.getSession().then(({ data }) => {
 
   <!-- ========== HEADER ========== -->
   <div class="header">
-    <h1>Plan de Paternidad + Vacaciones</h1>
-    <div class="sub">Islas Canarias, España · Luca llega el 20 de abril de 2026</div>
+    <h1>Misión: Luca (Miguel?)</h1>
+    <div class="sub">Luca / Miguel llega el 17 de abril de 2026 a las 09:00</div>
   </div>
 
-  <!-- ========== TOTAL DÍAS (moved to top) ========== -->
-  <section id="total-dias">
-    <div class="glass data-card" style="text-align:center; margin-bottom: 32px;">
-      <h2>Total Días de Permiso Parental</h2>
-      <div id="parentalDaySummary" class="parental-totals" style="justify-content:center; margin-top:12px;"></div>
+  <!-- ========== MISSION COUNTDOWN ========== -->
+  <section id="mission-countdown-section">
+    <div class="glass mission-countdown" id="countdown-card">
+      <div class="mission-header">
+        <span class="mission-dot"></span>
+        <span class="mission-label">Cuenta atrás para parto programado:</span>
+        <span class="mission-status" id="mission-status">COUNTDOWN ACTIVE</span>
+      </div>
+      <div class="mission-clock">
+        <span class="clock-sign" id="cd-sign">T−</span>
+        <div class="clock-seg"><div class="seg-num" id="cd-days">---</div><div class="seg-lbl">DAYS</div></div>
+        <div class="clock-sep">:</div>
+        <div class="clock-seg"><div class="seg-num" id="cd-hours">--</div><div class="seg-lbl">HRS</div></div>
+        <div class="clock-sep">:</div>
+        <div class="clock-seg"><div class="seg-num" id="cd-mins">--</div><div class="seg-lbl">MIN</div></div>
+        <div class="clock-sep">:</div>
+        <div class="clock-seg"><div class="seg-num" id="cd-secs">--</div><div class="seg-lbl">SEC</div></div>
+      </div>
+      <div class="mission-footer">
+        <div id="countdown-sub"><strong>Últimas Noticias</strong><ul style="margin:6px 0 0 0; padding-left:18px;"><li>14-04 09:15 Sujeto presenta contracciones!</li><li>14-04 08:31 Sujeto somnoliento de muy mal humor (extremar precaución)</li><li>14-04 03:45 Sujeto no puedo dormir (y no deja dormir)</li><li>13-04 02:56 Sujeto padece de gases... abdominales</li><li>13-04 22:34 Sujeto presenta cansancio extremo</li></ul></div>
+        <button class="btn-link birth-toggle" id="birth-toggle-btn">Registrar fecha de nacimiento</button>
+      </div>
     </div>
   </section>
 
@@ -824,11 +1000,9 @@ window.sb.auth.getSession().then(({ data }) => {
       <button class="urgent-x" id="urgent-dismiss" title="Ocultar hasta cerrar sesión">×</button>
     </div>
     <div class="dashboard">
-      <div class="glass dash-card countdown-card" id="countdown-card">
-        <div class="dash-label">Luca</div>
-        <div class="dash-big" id="countdown-num">—</div>
-        <div class="dash-sub" id="countdown-sub">días para la EDD</div>
-        <button class="btn-link birth-toggle" id="birth-toggle-btn">¿Ya nació? · Registrar fecha</button>
+      <div class="glass dash-card" id="total-dias">
+        <div class="dash-label">Total días de permiso</div>
+        <div id="parentalDaySummary" class="parental-totals" style="margin-top:8px;"></div>
       </div>
       <div class="glass dash-card next-action-card" id="next-action-card">
         <div class="dash-label">Próxima acción</div>
@@ -879,7 +1053,7 @@ window.sb.auth.getSession().then(({ data }) => {
       <div class="legend-item"><div class="legend-dot" style="background:var(--cal-workday-bg); box-shadow: inset 0 0 0 2.5px var(--cal-trip-ring)"></div> Viaje</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--cal-workday-bg); outline: 2.5px solid var(--cal-shift-ring); outline-offset:-2.5px"></div> Días libres turno</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--cal-workday-bg); border-bottom: 2.5px solid var(--cal-school-border)"></div> Escuela verano</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--cal-baby-bg)"></div> Nace Luca</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--cal-baby-bg)"></div> Nace Luca / Miguel</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--cal-workday-bg); box-shadow: 0 0 0 2.5px #fbbf24"></div> Hoy</div>
     </div>
     <div class="cal-grid" id="yearCalendar"></div>
@@ -894,13 +1068,13 @@ window.sb.auth.getSession().then(({ data }) => {
         <tbody>
           <tr>
             <td data-label="Bloque"><span class="status-dot" style="background:#a855f7"></span>Obligatorio</td>
-            <td data-label="Plan">Primeras 6 semanas con Luca en casa, adaptación familiar</td>
+            <td data-label="Plan">Primeras 6 semanas con Luca / Miguel en casa, adaptación familiar</td>
             <td data-label="Días">42</td>
             <td data-label="Período">20 abr – 31 may</td>
           </tr>
           <tr>
             <td data-label="Bloque"><span class="status-dot" style="background:#d8b4fe"></span>Bloque 1 – Junio</td>
-            <td data-label="Plan">Adaptación a la vida en Tenerife con Luca</td>
+            <td data-label="Plan">Adaptación a la vida en Tenerife con Luca / Miguel</td>
             <td data-label="Días">12</td>
             <td data-label="Período">14 – 25 jun</td>
           </tr>
@@ -936,7 +1110,7 @@ window.sb.auth.getSession().then(({ data }) => {
           </tr>
           <tr class="muted-row">
             <td data-label="Bloque"><span class="status-dot" style="background:var(--accent-blue)"></span>Adicionales (2 semanas)</td>
-            <td data-label="Plan">Uso futuro — disponibles hasta que Luca cumpla 8 años</td>
+            <td data-label="Plan">Uso futuro — disponibles hasta que Luca / Miguel cumpla 8 años</td>
             <td data-label="Días">14</td>
             <td data-label="Período">Antes abr 2034</td>
           </tr>
@@ -950,11 +1124,7 @@ window.sb.auth.getSession().then(({ data }) => {
       </table>
     </div>
 
-  </section>
-
-  <!-- ========== VACACIONES ========== -->
-  <section id="vacaciones" class="tab-section">
-    <div class="glass data-card">
+    <div class="glass data-card" style="margin-top: 18px;">
       <h2>Resumen de Vacaciones Anuales</h2>
       <table class="data-table">
         <thead><tr><th>Bloque</th><th>Período</th><th>Estado</th></tr></thead>
@@ -1001,7 +1171,7 @@ window.sb.auth.getSession().then(({ data }) => {
         <div class="tramite-info"><div class="name">Silla de coche homologada i-Size (grupo 0+)</div><div class="meta">Obligatoria al alta · Instalada y probada 7 d antes EDD</div><span class="doc-slot" data-folder="Hospital"></span></div>
         <span class="badge badge-pending">Pendiente</span></div>
       <div class="tramite-row"><input type="checkbox" data-group="preparacion" data-idx="2">
-        <div class="tramite-info"><div class="name">Plan de parto a Vithas</div><div class="meta">Semana 36-37 · Entregar al equipo de matronas de Vithas</div><span class="doc-slot" data-folder="Hospital"></span></div>
+        <div class="tramite-info"><div class="name">Plan de parto</div><div class="meta">Semana 36-37 · Entregar al equipo de matronas de Vithas</div><span class="doc-slot" data-folder="Hospital"></span></div>
         <span class="badge badge-pending">Pendiente</span></div>
       <div class="tramite-row"><input type="checkbox" data-group="preparacion" data-idx="3">
         <div class="tramite-info"><div class="name">Logística hermano mayor durante parto</div><div class="meta">Luther King La Laguna · Coordinar recogida/pernocta · 3 d antes EDD</div><span class="doc-slot" data-folder="Hospital"></span></div>
@@ -1094,7 +1264,7 @@ window.sb.auth.getSession().then(({ data }) => {
         <select id="lib-type-select" class="lib-type">
           <option value="">Tipo (opcional)</option>
           <option value="dni-luis">DNI Luis</option>
-          <option value="dni-madre">DNI Madre</option>
+          <option value="dni-madre">DNI Colombina</option>
           <option value="libro-familia">Libro de Familia / Certificado literal</option>
           <option value="empadronamiento">Empadronamiento</option>
           <option value="parte-medico">Parte médico de nacimiento</option>
@@ -1123,7 +1293,7 @@ window.sb.auth.getSession().then(({ data }) => {
         <li><strong>Siam Park (5–7 jun):</strong> Cae en días libres de turno — no requiere permiso.</li>
         <li><strong>La Graciosa (5–12 nov):</strong> 5–7 nov días libres de turno + bloque 3 (8–14 nov). Totalmente cubierto.</li>
         <li><strong>Viaje con padre (por decidir):</strong> Viaje con padre (77 años) a Miami o Perú — destino pendiente. 2 bloques reservados.</li>
-        <li><strong>Plazo límite:</strong> 17 de las 19 semanas deben usarse antes de que Luca cumpla 1 año (20 abr 2027). Los bloques de Japón terminan el 15 abr — 5 días de margen. Las 2 semanas adicionales pueden disfrutarse hasta que cumpla 8 años (abr 2034).</li>
+        <li><strong>Plazo límite:</strong> 17 de las 19 semanas deben usarse antes de que Luca / Miguel cumpla 1 año (20 abr 2027). Los bloques de Japón terminan el 15 abr — 5 días de margen. Las 2 semanas adicionales pueden disfrutarse hasta que cumpla 8 años (abr 2034).</li>
       </ul>
     </div>
   </section>
@@ -1160,7 +1330,7 @@ window.sb.auth.getSession().then(({ data }) => {
 <div class="modal-backdrop" id="birth-modal">
   <div class="modal">
     <h3>👶 Registrar nacimiento</h3>
-    <p>Marca la fecha real de nacimiento de Luca. Todos los plazos posteriores se recalcularán desde esta fecha.</p>
+    <p>Marca la fecha real de nacimiento de Luca / Miguel. Todos los plazos posteriores se recalcularán desde esta fecha.</p>
     <label style="display:block;font-size:12px;color:var(--text-muted);margin-top:14px;margin-bottom:6px;">Fecha de nacimiento</label>
     <input type="date" id="birth-date-input" min="2026-03-01" max="2026-06-30" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#f0eef5;font-size:15px;font-family:inherit;">
     <div class="modal-actions">
@@ -1179,7 +1349,7 @@ window.sb.auth.getSession().then(({ data }) => {
      ============================================ -->
 <script>
 // ========== DEADLINE ENGINE ==========
-window.BIRTH_EDD = new Date(2026, 3, 20); // 20 Apr 2026
+window.BIRTH_EDD = new Date(2026, 3, 17, 9, 0, 0); // Cesárea 17 Abr 2026 09:00
 window.birthActual = null; // set when "Ya nació" toggled, YYYY-MM-DD string
 window.getBirthAnchor = function() {
   if (window.birthActual) {
@@ -1318,17 +1488,14 @@ window.TRAMITES = {
                 deadline: { kind: 'afterBirth', days: 456, label: '15 meses' }, scope: 'autonomica',
                 dependsOn: ['salud-9'] },
   // ---------- Ayudas económicas ----------
-  'ayudas-0': { name: 'Deducción por maternidad AEAT (modelo 140)', meta: 'Agencia Tributaria · 100€/mes hasta 3 años · Solo madre trabajadora en alta SS',
-                deadline: { kind: 'afterBirth', days: 30, label: 'Primer mes tras alta' }, scope: 'nacional',
-                dependsOn: ['bebe-1'] },
-  'ayudas-1': { name: 'Verificación IRPF — datos familiares', meta: 'AEAT · Actualizar número de hijos para retenciones · Al empleador',
+  'ayudas-0': { name: 'Contactar con asesora fiscal Elena Melián', meta: 'Verificación IRPF — datos familiares · Actualizar número de hijos para retenciones · Al empleador',
                 deadline: { kind: 'afterBirth', days: 60, label: 'Primeros 2 meses' }, scope: 'nacional' },
-  'ayudas-2': { name: 'Ayuda nacimiento Ayto. LPGC (si convocatoria activa)', meta: 'Ayto. Las Palmas · Verificar convocatoria en BOP · Requiere empadronamiento',
+  'ayudas-1': { name: 'Ayuda nacimiento Ayto. LPGC (si convocatoria activa)', meta: 'Ayto. Las Palmas · Verificar convocatoria en BOP · Requiere empadronamiento',
                 deadline: { kind: 'afterBirth', days: 90, label: 'Primeros 3 meses — verificar plazo BOP' }, scope: 'municipal',
                 dependsOn: ['bebe-2'] },
-  'ayudas-3': { name: 'Actualización beneficiarios seguros de vida', meta: 'Aseguradora · Incluir al nuevo hijo',
+  'ayudas-2': { name: 'Actualización beneficiarios seguros de vida', meta: 'Aseguradora · Incluir al nuevo hijo',
                 deadline: { kind: 'afterBirth', days: 60, label: 'Primeros 2 meses' }, scope: 'nacional' },
-  'ayudas-4': { name: 'Actualización seguro médico privado (si aplica)', meta: 'Aseguradora · Alta del bebé · Algunos tienen 15-30 días plazo',
+  'ayudas-3': { name: 'Actualización seguro médico privado (si aplica)', meta: 'Aseguradora · Alta del bebé · Algunos tienen 15-30 días plazo',
                 deadline: { kind: 'afterBirth', days: 15, label: 'Primeras 2 semanas' }, priority: 'high', scope: 'privado' }
 };
 
@@ -1349,7 +1516,7 @@ window.GROUPS = {
   binter:      { title: 'Binter — Empresa / RRHH', renderMode: 'html' },
   bebe:        { title: '👶 Bebé — Admin', desc: 'Trámites administrativos del bebé tras el nacimiento.', renderMode: 'js', count: 7 },
   salud:       { title: '🩺 Salud', desc: 'Seguimiento sanitario entre Vithas (parto) y SCS (post-parto La Laguna / LPGC). Calendario vacunal Canarias.', renderMode: 'js', count: 11 },
-  ayudas:      { title: '💶 Ayudas económicas', desc: 'Deducciones y ayudas aplicables a nivel nacional, autonómico y municipal.', renderMode: 'js', count: 5 }
+  ayudas:      { title: '💶 Ayudas económicas', desc: 'Deducciones y ayudas aplicables a nivel nacional, autonómico y municipal.', renderMode: 'js', count: 4 }
 };
 
 window.SCOPE_CHIPS = {
@@ -1500,7 +1667,7 @@ window.fmtLongDate = function(d) {
       if (shiftOff) { cell.classList.add('shift-off'); cell.title = 'Día libre de turno'; }
       if (tripDay) cell.classList.add('trip');
       if (schoolDay && !type) cell.classList.add('school');
-      if (year === 2026 && month === 3 && d === 20) { cell.classList.add('baby'); cell.title = '¡Nace Luca!'; }
+      if (year === 2026 && month === 3 && d === 20) { cell.classList.add('baby'); cell.title = '¡Nace Luca / Miguel!'; }
       const todayCmp = new Date(); todayCmp.setHours(0,0,0,0);
       if (date.getTime() === todayCmp.getTime()) { cell.classList.add('today'); cell.title = (cell.title ? cell.title + ' · ' : '') + 'Hoy'; }
       daysDiv.appendChild(cell);
@@ -1977,40 +2144,54 @@ window.fmtLongDate = function(d) {
     };
   }
 
-  function renderDashboard() {
-    const today = new Date(); today.setHours(0,0,0,0);
+  window.renderMissionCountdown = function() {
     const ccard = document.getElementById('countdown-card');
-    const cnum = document.getElementById('countdown-num');
-    const csub = document.getElementById('countdown-sub');
-
-    if (cnum && csub && ccard) {
-      if (window.isBornYet()) {
-        const birth = window.getBirthAnchor();
-        const ageDays = Math.round((today - birth) / 86400000);
-        ccard.classList.add('post-birth');
-        if (ageDays === 0) { cnum.textContent = '¡Hoy!'; csub.textContent = 'Luca nació hoy 🎉'; }
-        else if (ageDays < 0) { cnum.textContent = Math.abs(ageDays); csub.textContent = 'días hasta el nacimiento registrado'; }
-        else if (ageDays < 30) { cnum.textContent = ageDays; csub.textContent = ageDays === 1 ? 'día de vida' : 'días de vida'; }
-        else if (ageDays < 365) { const m = Math.floor(ageDays/30); cnum.textContent = m + 'm'; csub.textContent = 'meses (aprox) · ' + ageDays + ' d'; }
-        else { const y = Math.floor(ageDays/365); cnum.textContent = y + 'a'; csub.textContent = ageDays + ' d de vida'; }
+    const dEl = document.getElementById('cd-days');
+    const hEl = document.getElementById('cd-hours');
+    const mEl = document.getElementById('cd-mins');
+    const sEl = document.getElementById('cd-secs');
+    const sub = document.getElementById('countdown-sub');
+    const status = document.getElementById('mission-status');
+    const sign = document.getElementById('cd-sign');
+    if (!ccard || !dEl) return;
+    const now = new Date();
+    let target, postBirth = false;
+    if (window.isBornYet && window.isBornYet()) {
+      target = window.getBirthAnchor();
+      postBirth = true;
+    } else {
+      target = new Date(window.BIRTH_EDD);
+    }
+    let diff = target - now;
+    const past = diff < 0;
+    diff = Math.abs(diff);
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    dEl.textContent = String(d).padStart(3, '0');
+    hEl.textContent = String(h).padStart(2, '0');
+    mEl.textContent = String(m).padStart(2, '0');
+    sEl.textContent = String(s).padStart(2, '0');
+    if (sign) sign.textContent = past ? 'T+' : 'T−';
+    if (postBirth) {
+      ccard.classList.add('post-birth');
+      if (status) status.textContent = 'MISSION ACTIVE';
+      if (past) sub.textContent = 'desde el nacimiento registrado';
+    } else {
+      ccard.classList.remove('post-birth');
+      if (past) {
+        if (status) status.textContent = 'HOLD · PAST EDD';
       } else {
-      const edd = window.BIRTH_EDD;
-      const daysToEdd = Math.round((edd - today) / 86400000);
-      if (daysToEdd > 0) {
-        cnum.textContent = daysToEdd;
-        csub.textContent = daysToEdd === 1 ? 'día para la EDD (20 abr 2026)' : 'días para la EDD (20 abr 2026)';
-        ccard.classList.remove('post-birth');
-      } else if (daysToEdd === 0) {
-        cnum.textContent = '¡Hoy!';
-        csub.textContent = 'Fecha probable de parto';
-        ccard.classList.remove('post-birth');
-      } else {
-        cnum.textContent = Math.abs(daysToEdd);
-        csub.textContent = Math.abs(daysToEdd) === 1 ? 'día desde la EDD' : 'días desde la EDD';
-        ccard.classList.add('post-birth');
-      }
+        if (status) status.textContent = d < 7 ? 'GO FOR LAUNCH WINDOW' : 'COUNTDOWN ACTIVE';
       }
     }
+  };
+  setInterval(window.renderMissionCountdown, 1000);
+
+  function renderDashboard() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (typeof window.renderMissionCountdown === 'function') window.renderMissionCountdown();
     renderUrgentBanner();
 
     const title = document.getElementById('next-action-title');
@@ -2509,7 +2690,7 @@ window.fmtLongDate = function(d) {
   let currentPickerTramite = null;
 
   const typeLabels = {
-    'dni-luis': 'DNI Luis', 'dni-madre': 'DNI Madre',
+    'dni-luis': 'DNI Luis', 'dni-madre': 'DNI Colombina',
     'libro-familia': 'Libro de Familia', 'empadronamiento': 'Empadronamiento',
     'parte-medico': 'Parte médico', 'informe-mat': 'Informe maternidad',
     'cert-empresa': 'Cert. empresa', 'iban': 'IBAN',
@@ -2764,6 +2945,7 @@ if ('serviceWorker' in navigator) {
     sections.forEach(s => s.classList.remove('active'));
     links.forEach(l => l.classList.remove('active'));
     target.classList.add('active');
+    document.body.dataset.tab = id;
     const link = links.find(l => l.getAttribute('href') === '#' + id);
     if (link) link.classList.add('active');
     window.scrollTo(0, 0);
