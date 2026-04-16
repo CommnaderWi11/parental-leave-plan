@@ -649,7 +649,6 @@ body.is-admin .update-del { display: inline-block; }
   // ---------- Countdown ----------
   const cdDisplay = document.getElementById('cd-display');
   const cdStatus = document.getElementById('cd-status');
-  const cdBornLine = document.getElementById('cd-born-line');
 
   function renderClock(diffMs, sign) {
     const totalSec = Math.floor(Math.abs(diffMs) / 1000);
@@ -707,12 +706,10 @@ body.is-admin .update-del { display: inline-block; }
     } else if (now < TARGET.getTime()) {
       cdStatus.textContent = 'PROGRAMADO';
       cdStatus.classList.remove('born');
-      cdBornLine.style.display = 'none';
       renderClock(TARGET.getTime() - now, 'T−');
     } else {
       cdStatus.textContent = 'EN CURSO';
       cdStatus.classList.remove('born');
-      cdBornLine.style.display = 'none';
       cdDisplay.innerHTML = '<div class="cd-suspense">. . .</div>';
     }
   }
