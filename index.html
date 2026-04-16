@@ -629,6 +629,7 @@ body.is-admin .update-del { display: inline-block; }
   let isAdmin = false;
   let bornAt = null;
   let weightGrams = null;
+  let hasFiredConfetti = false;
   let updates = [];
   const commentsByUpdate = new Map();
 
@@ -768,18 +769,13 @@ body.is-admin .update-del { display: inline-block; }
   async function loadBornAt() {
     const { data, error } = await sb.from('birth_moment').select('born_at, weight_grams').eq('id', 1).maybeSingle();
     if (error) { console.warn('birth_moment load failed', error); return; }
-    const newBorn = data && data.born_at;
-    const justBorn = !bornAt && newBorn;
-    bornAt = newBorn;
+    bornAt = data && data.born_at;
     weightGrams = data && data.weight_grams;
     updateBirthBox();
     tick();
-    if (justBorn) {
-      const seenKey = 'celebrated-' + newBorn;
-      if (!sessionStorage.getItem(seenKey)) {
-        sessionStorage.setItem(seenKey, '1');
-        fireConfetti();
-      }
+    if (bornAt && !hasFiredConfetti) {
+      hasFiredConfetti = true;
+      fireConfetti();
     }
   }
 
