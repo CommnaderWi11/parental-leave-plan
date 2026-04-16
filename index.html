@@ -1015,15 +1015,14 @@ body.is-offline .offline-badge { display: inline-block; }
 
   function fmtWeight(g) {
     if (!g) return '—';
-    const kg = (g / 1000).toFixed(2);
-    return g + ' g · ' + kg + ' kg';
+    return g + ' g';
   }
 
   function applyBornState() {
     document.body.classList.toggle('is-born', !!bornAt);
     if (bornAt) {
       const d = new Date(bornAt);
-      bbTime.textContent = pad(d.getDate()) + '/' + pad(d.getMonth()+1) + ' · ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      bbTime.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
       bbWeight.textContent = fmtWeight(weightGrams);
       bbSince.textContent = 'Hace ' + durationSince(bornAt);
       cdCard.classList.add('celebrate');
