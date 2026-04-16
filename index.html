@@ -3011,6 +3011,21 @@ if ('serviceWorker' in navigator) {
   const listEl = () => document.getElementById('news-list');
   const errEl  = () => document.getElementById('news-error');
 
+  function openLightbox(src) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:10000;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:20px;box-sizing:border-box;';
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);';
+    overlay.appendChild(img);
+    const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    overlay.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(overlay);
+  }
+  window.openLightbox = openLightbox;
+
   function fmtTs(iso) {
     const d = new Date(iso);
     const dd = String(d.getDate()).padStart(2,'0');
@@ -3032,7 +3047,8 @@ if ('serviceWorker' in navigator) {
       if (r.photo_data_url) {
         const img = document.createElement('img');
         img.src = r.photo_data_url;
-        img.style.cssText = 'max-width:100%;max-height:180px;display:block;margin-top:4px;border-radius:6px;';
+        img.style.cssText = 'max-width:100%;max-height:180px;display:block;margin-top:4px;border-radius:6px;cursor:zoom-in;';
+        img.addEventListener('click', () => openLightbox(r.photo_data_url));
         li.appendChild(img);
       }
       ul.appendChild(li);
