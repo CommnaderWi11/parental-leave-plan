@@ -2,9 +2,21 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
 <meta name="theme-color" content="#fdfaf4">
 <title>Llega Luca</title>
+<meta name="description" content="Cuenta atrás y noticias de la llegada de Luca.">
+<meta property="og:title" content="Llega Luca">
+<meta property="og:description" content="Cuenta atrás y noticias de la llegada de Luca.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://commnaderwi11.github.io/parental-leave-plan/">
+<meta property="og:image" content="https://commnaderwi11.github.io/parental-leave-plan/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Llega Luca">
+<meta name="twitter:description" content="Cuenta atrás y noticias de la llegada de Luca.">
+<meta name="twitter:image" content="https://commnaderwi11.github.io/parental-leave-plan/icon-512.png">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,18 +49,21 @@ body {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 8px;
+  min-height: 28px;
 }
 .top-bar a {
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #8a7e6b;
+  color: #c5b89e;
   text-decoration: none;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
-  transition: color .2s;
+  opacity: 0.6;
+  transition: color .2s, opacity .2s;
 }
-.top-bar a:hover { color: #1f2742; }
+.top-bar a:hover { color: #1f2742; opacity: 1; }
+body.is-admin .top-bar a { opacity: 1; color: #8a7e6b; }
 
 .header { text-align: center; margin-bottom: 32px; }
 .header h1 {
@@ -59,6 +74,9 @@ body {
   color: #1f2742;
   margin: 8px 0 6px;
   line-height: 1;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .header .sub {
   font-size: 13px;
@@ -78,7 +96,12 @@ body {
 }
 
 /* ==== COUNTDOWN ==== */
-.countdown-card { text-align: center; padding: 28px 24px 24px; position: relative; overflow: hidden; }
+.countdown-card {
+  text-align: center;
+  padding: 0 24px 24px;
+  position: relative;
+  overflow: hidden;
+}
 .countdown-card.celebrate {
   background: linear-gradient(135deg, #fffaf0, #fff4e3);
   box-shadow: 0 6px 28px rgba(217,147,72,0.25), 0 0 0 1px rgba(245,185,107,0.4);
@@ -88,46 +111,29 @@ body {
   0%   { box-shadow: 0 6px 28px rgba(217,147,72,0.20), 0 0 0 1px rgba(245,185,107,0.35); }
   100% { box-shadow: 0 8px 36px rgba(232,117,91,0.35), 0 0 0 1px rgba(232,117,91,0.45); }
 }
-.birth-box {
-  display: none;
-  align-items: center;
-  justify-content: space-around;
-  background: linear-gradient(135deg, #fff7ea, #ffe9cf);
-  border: 1px solid #f3d4a3;
-  border-radius: 14px;
-  padding: 14px 18px;
-  margin: 16px auto 0;
-  text-align: center;
-  box-shadow: 0 4px 14px rgba(217,147,72,0.15);
-  max-width: 360px;
+
+/* progress bar at top of countdown card */
+.cd-progress {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: #f3e8d3;
+  overflow: hidden;
 }
-.birth-box.show { display: flex; }
-.birth-box-cell { flex: 1; }
-.birth-box .bb-label {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #b07a3a;
-  font-weight: 600;
-  margin-bottom: 4px;
+.cd-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #f5b96b, #e8755b);
+  transition: width 0.6s ease-out;
 }
-.birth-box .bb-value {
-  font-family: 'Fraunces', Georgia, serif;
-  font-weight: 600;
-  color: #1f2742;
-  font-size: 22px;
-  line-height: 1.1;
-}
-.birth-box .bb-divider {
-  width: 1px; height: 28px;
-  background: #e8c896;
-  margin: 0 8px;
-}
+body.is-born .cd-progress-fill { width: 100% !important; background: linear-gradient(90deg, #7a9d6b, #5e8a52); }
+
 .cd-strip {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  padding-top: 28px;
   margin-bottom: 18px;
   font-size: 11px;
   letter-spacing: 0.18em;
@@ -155,6 +161,7 @@ body {
 }
 .cd-status.born { color: #2f7a48; background: #e3f3e8; }
 
+/* normal countdown clock */
 .cd-clock {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
   font-weight: 700;
@@ -166,8 +173,10 @@ body {
   font-size: clamp(28px, 7vw, 44px);
   margin: 6px 0;
 }
+.cd-clock.compact { font-size: clamp(40px, 11vw, 64px); }
 .cd-sign { color: #c97a4a; font-size: 0.7em; margin-right: 6px; }
 .cd-seg { display: flex; flex-direction: column; align-items: center; min-width: 56px; }
+.cd-clock.compact .cd-seg { min-width: 72px; }
 .cd-num { font-size: 1em; line-height: 1; color: #1f2742; }
 .cd-num.amber { color: #d99348; }
 .cd-lbl {
@@ -179,6 +188,7 @@ body {
   margin-top: 6px;
   font-weight: 500;
 }
+.cd-clock.compact .cd-lbl { font-size: 11px; }
 .cd-sep { color: #d2c5ad; font-size: 0.85em; padding: 0 2px; align-self: flex-start; margin-top: 4px; }
 
 .cd-suspense {
@@ -194,12 +204,75 @@ body {
   50%      { opacity: 1; }
 }
 
+/* born state — hide clock + strip status, show big birth-box hero */
+body.is-born #cd-display { display: none; }
+body.is-born .cd-strip { display: none; }
+body.is-born .cd-progress { display: none; }
+body.is-born .countdown-card { padding-top: 28px; }
 
-.cd-admin-actions {
-  margin-top: 18px;
+.birth-box {
   display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin: 4px auto 0;
+  max-width: 460px;
 }
+body.is-born .birth-box { display: flex; }
+.birth-box-headline {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 6vw, 38px);
+  font-weight: 600;
+  color: #1f2742;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.birth-box-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  background: linear-gradient(135deg, #fff7ea, #ffe9cf);
+  border: 1px solid #f3d4a3;
+  border-radius: 14px;
+  padding: 16px 26px;
+  box-shadow: 0 4px 14px rgba(217,147,72,0.15);
+}
+.birth-box-cell { text-align: center; }
+.bb-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #b07a3a;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.bb-value {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  color: #1f2742;
+  font-size: 26px;
+  line-height: 1.1;
+}
+.bb-divider { width: 1px; align-self: stretch; background: #e8c896; }
+.birth-box-since {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #8a7e6b;
+  letter-spacing: 0.06em;
+}
+
+.cd-admin-actions { margin-top: 18px; display: none; }
 body.is-admin .cd-admin-actions { display: block; }
+
+.cd-notify {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cd-notify[hidden] { display: none !important; }
+body.is-born .cd-notify { display: none !important; }
 
 /* ==== BUTTONS ==== */
 .btn {
@@ -224,11 +297,23 @@ body.is-admin .cd-admin-actions { display: block; }
   background: transparent;
   color: #8a7e6b;
   font-size: 12px;
+  padding: 6px 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid #e8dcc4;
+  border-radius: 999px;
+}
+.btn-ghost:hover { color: #1f2742; border-color: #c97a4a; }
+.btn-link {
+  background: transparent;
+  color: #8a7e6b;
+  font-size: 12px;
   padding: 6px 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  border: none;
 }
-.btn-ghost:hover { color: #1f2742; }
+.btn-link:hover { color: #1f2742; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ==== ADMIN POST FORM ==== */
@@ -290,6 +375,18 @@ input[type="file"]::file-selector-button {
   margin-right: 10px;
   cursor: pointer;
 }
+.up-previews {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.up-previews img {
+  width: 64px; height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ece2cf;
+}
 .form-error {
   color: #c0392b;
   font-size: 13px;
@@ -301,13 +398,14 @@ input[type="file"]::file-selector-button {
 .feed-empty {
   text-align: center;
   color: #a89880;
-  font-style: italic;
-  padding: 30px 10px;
+  padding: 36px 16px;
   font-size: 14px;
 }
-.update {
-  position: relative;
-}
+.feed-empty .fe-emoji { font-size: 38px; display: block; margin-bottom: 8px; }
+.feed-empty .fe-title { font-family: 'Fraunces', serif; font-size: 18px; color: #6e6552; margin-bottom: 4px; }
+.feed-empty .fe-sub { font-size: 13px; color: #b5a489; font-style: italic; }
+
+.update { position: relative; }
 .update-meta {
   display: flex;
   justify-content: space-between;
@@ -327,17 +425,29 @@ input[type="file"]::file-selector-button {
   white-space: pre-wrap;
   color: #2a3142;
 }
-.update-photo {
-  display: block;
-  width: 100%;
-  max-height: 460px;
-  object-fit: cover;
-  border-radius: 12px;
+
+/* photo grid: thumbnails, click for lightbox */
+.update-photos {
+  display: grid;
+  gap: 6px;
   margin-top: 12px;
-  cursor: zoom-in;
-  transition: transform .25s;
 }
-.update-photo:hover { transform: scale(1.005); }
+.update-photos.n-1 { grid-template-columns: 1fr; }
+.update-photos.n-2 { grid-template-columns: 1fr 1fr; }
+.update-photos.n-3, .update-photos.n-4, .update-photos.n-5, .update-photos.n-6 { grid-template-columns: repeat(3, 1fr); }
+.update-photo-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: zoom-in;
+  background: #f5ecdc;
+  transition: transform .25s, box-shadow .25s;
+  display: block;
+}
+.update-photos.n-1 .update-photo-thumb { aspect-ratio: 4 / 3; }
+.update-photo-thumb:hover { transform: scale(1.01); box-shadow: 0 6px 18px rgba(20,30,60,0.12); }
+
 .update-del {
   display: none;
   background: transparent;
@@ -351,20 +461,73 @@ input[type="file"]::file-selector-button {
 .update-del:hover { background: #fcefe1; }
 body.is-admin .update-del { display: inline-block; }
 
+/* ==== HEART REACTION ==== */
+.update-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.heart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #ece2cf;
+  color: #8a7e6b;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s, transform .1s;
+}
+.heart-btn:hover { background: #fff5f0; }
+.heart-btn:active { transform: scale(0.95); }
+.heart-btn .heart-icon { font-size: 14px; transition: transform .25s; }
+.heart-btn.liked {
+  background: #fdecec;
+  border-color: #f3b3b3;
+  color: #c0392b;
+}
+.heart-btn.liked .heart-icon { animation: heartPop 0.4s ease-out; }
+@keyframes heartPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
 /* ==== COMMENTS ==== */
 .comments {
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px solid #f1e8d6;
 }
-.comments-title {
+.comments-toggle {
+  background: transparent;
+  border: none;
+  font-family: inherit;
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #a89880;
   font-weight: 600;
-  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
+.comments-toggle:hover { color: #2a3142; }
+.comments-toggle .chev { transition: transform .2s; display: inline-block; }
+.comments.open .comments-toggle .chev { transform: rotate(90deg); }
+.comments-body {
+  display: none;
+  margin-top: 10px;
+}
+.comments.open .comments-body { display: block; }
+
 .comment {
   padding: 8px 0;
   font-size: 14px;
@@ -407,6 +570,19 @@ body.is-admin .update-del { display: inline-block; }
 }
 .footer a { color: #8a7e6b; text-decoration: none; }
 .footer a:hover { color: #2a3142; }
+.offline-badge {
+  display: none;
+  background: #fcefe1;
+  color: #c97a4a;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-top: 6px;
+}
+body.is-offline .offline-badge { display: inline-block; }
 
 /* ==== TOAST ==== */
 #toast {
@@ -432,7 +608,7 @@ body.is-admin .update-del { display: inline-block; }
 #toast.error { background: #b9442b; }
 #toast.success { background: #2f7a48; }
 
-/* ==== MODAL (login) ==== */
+/* ==== MODAL (login / birth) ==== */
 .modal-bg {
   position: fixed; inset: 0;
   background: rgba(31,39,66,0.45);
@@ -471,32 +647,81 @@ body.is-admin .update-del { display: inline-block; }
   margin-top: 6px;
 }
 
-/* ==== LIGHTBOX ==== */
+/* ==== LIGHTBOX (with prev/next) ==== */
 .lightbox {
   position: fixed; inset: 0;
-  background: rgba(15,18,30,0.94);
+  background: rgba(15,18,30,0.96);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10000;
-  cursor: zoom-out;
-  padding: 20px;
+  padding: 0;
+}
+.lightbox-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .lightbox img {
   max-width: 100%;
   max-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
-  border-radius: 6px;
   box-shadow: 0 12px 50px rgba(0,0,0,0.5);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.lightbox-close, .lightbox-nav {
+  position: absolute;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  width: 44px; height: 44px;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2;
+  transition: background .15s;
+}
+.lightbox-close:hover, .lightbox-nav:hover { background: rgba(255,255,255,0.22); }
+.lightbox-close { top: max(16px, env(safe-area-inset-top)); right: 16px; }
+.lightbox-nav.prev { left: 12px; top: 50%; transform: translateY(-50%); }
+.lightbox-nav.next { right: 12px; top: 50%; transform: translateY(-50%); }
+.lightbox-counter {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  background: rgba(0,0,0,0.4);
+  padding: 4px 12px;
+  border-radius: 999px;
+  z-index: 2;
 }
 
 @media (max-width: 480px) {
   .container { padding: 20px 14px 50px; }
   .card { padding: 20px 18px; border-radius: 14px; }
-  .countdown-card { padding: 22px 18px 20px; }
+  .countdown-card { padding: 0 18px 20px; }
+  body.is-born .countdown-card { padding-top: 22px; }
   .cd-seg { min-width: 44px; }
+  .cd-clock.compact .cd-seg { min-width: 60px; }
   .comment-form .name-row { flex-direction: column; }
   .comment-form .name-row input { flex: 1; }
+  .birth-box-row { gap: 18px; padding: 14px 18px; }
+  .bb-value { font-size: 22px; }
 }
 </style>
 </head>
@@ -504,7 +729,7 @@ body.is-admin .update-del { display: inline-block; }
 
 <div class="container">
   <div class="top-bar">
-    <a href="#" id="admin-link">Soy Daddey</a>
+    <a href="#" id="admin-link" aria-label="Admin">·</a>
   </div>
 
   <div class="header">
@@ -513,23 +738,32 @@ body.is-admin .update-del { display: inline-block; }
 
   <!-- COUNTDOWN -->
   <div class="card countdown-card" id="cd-card">
+    <div class="cd-progress" aria-hidden="true"><div class="cd-progress-fill" id="cd-progress-fill"></div></div>
     <div class="cd-strip">
       <span class="cd-dot"></span>
       <span>Cuenta atrás</span>
       <span class="cd-status" id="cd-status">PROGRAMADO</span>
     </div>
     <div id="cd-display"></div>
+
     <div class="birth-box" id="birth-box">
-      <div class="birth-box-cell">
-        <div class="bb-label">Nació a las:</div>
-        <div class="bb-value" id="bb-time">—</div>
+      <div class="birth-box-headline">¡Llegó Luca!</div>
+      <div class="birth-box-row">
+        <div class="birth-box-cell">
+          <div class="bb-label">Nació a las</div>
+          <div class="bb-value" id="bb-time">—</div>
+        </div>
+        <div class="bb-divider"></div>
+        <div class="birth-box-cell">
+          <div class="bb-label">Peso</div>
+          <div class="bb-value" id="bb-weight">—</div>
+        </div>
       </div>
-      <div class="bb-divider"></div>
-      <div class="birth-box-cell">
-        <div class="bb-label">Peso:</div>
-        <div class="bb-value" id="bb-weight">—</div>
-      </div>
+      <div class="birth-box-since" id="bb-since"></div>
     </div>
+
+    <button class="btn btn-ghost cd-notify" id="btn-notify" hidden>🔔 Avísame cuando nazca</button>
+
     <div class="cd-admin-actions">
       <button class="btn btn-primary" id="btn-born">Marcar como nacido</button>
     </div>
@@ -540,19 +774,25 @@ body.is-admin .update-del { display: inline-block; }
     <div class="label">Nueva actualización</div>
     <textarea id="up-text" placeholder="Comparte una actualización…" maxlength="4000" rows="3"></textarea>
     <div class="form-row">
-      <input type="file" id="up-photo" accept="image/*">
+      <input type="file" id="up-photo" accept="image/*" multiple>
       <button class="btn btn-primary" id="up-submit">Publicar</button>
     </div>
+    <div id="up-previews" class="up-previews"></div>
     <div id="up-error" class="form-error"></div>
   </div>
 
   <!-- FEED -->
   <div id="feed">
-    <div class="feed-empty">Aún no hay actualizaciones.</div>
+    <div class="feed-empty">
+      <span class="fe-emoji">🍼</span>
+      <div class="fe-title">Pronto habrá noticias</div>
+      <div class="fe-sub">Las primeras fotos y mensajes aparecerán aquí.</div>
+    </div>
   </div>
 
   <div class="footer">
     Hecho con ♥ · <a href="parental-leave.html">Plan de paternidad</a>
+    <div class="offline-badge">Sin conexión · mostrando caché</div>
   </div>
 </div>
 
@@ -565,7 +805,7 @@ body.is-admin .update-del { display: inline-block; }
     <input type="number" id="birth-weight" placeholder="Peso en gramos (ej. 3450)" min="500" max="7000" step="1">
     <div id="birth-error" class="form-error"></div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" id="birth-cancel">Cancelar</button>
+      <button class="btn btn-link" id="birth-cancel">Cancelar</button>
       <button class="btn btn-primary" id="birth-submit">Confirmar nacimiento</button>
     </div>
   </div>
@@ -580,7 +820,7 @@ body.is-admin .update-del { display: inline-block; }
     <input type="text" id="login-pass" placeholder="Contraseña" style="-webkit-text-security: disc; text-security: disc;">
     <div id="login-error" class="form-error"></div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" id="login-cancel">Cancelar</button>
+      <button class="btn btn-link" id="login-cancel">Cancelar</button>
       <button class="btn btn-primary" id="login-submit">Entrar</button>
     </div>
   </div>
@@ -595,15 +835,20 @@ body.is-admin .update-del { display: inline-block; }
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
 
   const TARGET = new Date(2026, 3, 17, 12, 0, 0); // 17 Abr 2026 12:00
+  const PROGRESS_WINDOW_DAYS = 30; // progress bar fills over the last 30 days
   const BUCKET = 'birth-photos';
   const PUBLIC_BASE = SUPABASE_URL + '/storage/v1/object/public/' + BUCKET + '/';
-  const MAX_PHOTO = 10 * 1024 * 1024;
+  const MAX_PHOTO_INPUT = 25 * 1024 * 1024; // raw file before resize
+  const MAX_PHOTOS_PER_POST = 6;
+  const FULL_MAX_DIM = 1600;
+  const THUMB_MAX_DIM = 600;
 
   let isAdmin = false;
   let bornAt = null;
   let weightGrams = null;
   let hasFiredConfetti = false;
   let updates = [];
+  let pendingFiles = [];
   const commentsByUpdate = new Map();
 
   // ---------- Toast ----------
@@ -616,18 +861,90 @@ body.is-admin .update-del { display: inline-block; }
     toastTimer = setTimeout(() => { toastEl.className = ''; }, 3000);
   }
 
-  // ---------- Lightbox ----------
-  function openLightbox(src) {
+  // ---------- Lightbox (gallery) ----------
+  let lightboxState = null;
+  function openLightbox(photos, startIdx) {
+    closeLightbox();
     const overlay = document.createElement('div');
     overlay.className = 'lightbox';
+    const wrap = document.createElement('div');
+    wrap.className = 'lightbox-img-wrap';
     const img = document.createElement('img');
-    img.src = src;
-    overlay.appendChild(img);
-    const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
-    const onKey = (e) => { if (e.key === 'Escape') close(); };
-    overlay.addEventListener('click', close);
-    document.addEventListener('keydown', onKey);
+    wrap.appendChild(img);
+
+    const close = document.createElement('button');
+    close.className = 'lightbox-close';
+    close.setAttribute('aria-label', 'Cerrar');
+    close.innerHTML = '×';
+    overlay.appendChild(close);
+
+    const counter = document.createElement('div');
+    counter.className = 'lightbox-counter';
+    overlay.appendChild(counter);
+
+    const prev = document.createElement('button');
+    prev.className = 'lightbox-nav prev';
+    prev.setAttribute('aria-label', 'Anterior');
+    prev.innerHTML = '‹';
+    const next = document.createElement('button');
+    next.className = 'lightbox-nav next';
+    next.setAttribute('aria-label', 'Siguiente');
+    next.innerHTML = '›';
+
+    overlay.appendChild(wrap);
+    overlay.appendChild(prev);
+    overlay.appendChild(next);
     document.body.appendChild(overlay);
+
+    lightboxState = { photos, idx: startIdx, overlay, img, counter, prev, next };
+    function render() {
+      const p = lightboxState.photos[lightboxState.idx];
+      lightboxState.img.src = p.f || p.t || p;
+      const total = lightboxState.photos.length;
+      lightboxState.counter.textContent = (lightboxState.idx + 1) + ' / ' + total;
+      lightboxState.counter.style.display = total > 1 ? '' : 'none';
+      lightboxState.prev.style.display = total > 1 ? '' : 'none';
+      lightboxState.next.style.display = total > 1 ? '' : 'none';
+    }
+    function go(delta) {
+      const total = lightboxState.photos.length;
+      lightboxState.idx = (lightboxState.idx + delta + total) % total;
+      render();
+    }
+    prev.addEventListener('click', (e) => { e.stopPropagation(); go(-1); });
+    next.addEventListener('click', (e) => { e.stopPropagation(); go(1); });
+    close.addEventListener('click', closeLightbox);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay || e.target === wrap) closeLightbox(); });
+    document.addEventListener('keydown', onLightboxKey);
+    // touch swipe
+    let tx = 0;
+    overlay.addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; }, { passive: true });
+    overlay.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+    }, { passive: true });
+    render();
+  }
+  function closeLightbox() {
+    if (!lightboxState) return;
+    lightboxState.overlay.remove();
+    document.removeEventListener('keydown', onLightboxKey);
+    lightboxState = null;
+  }
+  function onLightboxKey(e) {
+    if (!lightboxState) return;
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowLeft') {
+      const t = lightboxState.photos.length;
+      lightboxState.idx = (lightboxState.idx - 1 + t) % t;
+      lightboxState.img.src = lightboxState.photos[lightboxState.idx].f || lightboxState.photos[lightboxState.idx].t;
+      lightboxState.counter.textContent = (lightboxState.idx + 1) + ' / ' + t;
+    } else if (e.key === 'ArrowRight') {
+      const t = lightboxState.photos.length;
+      lightboxState.idx = (lightboxState.idx + 1) % t;
+      lightboxState.img.src = lightboxState.photos[lightboxState.idx].f || lightboxState.photos[lightboxState.idx].t;
+      lightboxState.counter.textContent = (lightboxState.idx + 1) + ' / ' + t;
+    }
   }
 
   // ---------- Time helpers ----------
@@ -645,52 +962,74 @@ body.is-admin .update-del { display: inline-block; }
     const d = new Date(iso);
     return pad(d.getDate()) + '-' + pad(d.getMonth()+1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
   }
+  function durationSince(iso) {
+    const d = new Date(iso);
+    const totalSec = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
+    const days = Math.floor(totalSec / 86400);
+    const hours = Math.floor((totalSec % 86400) / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    if (days > 0) return days + 'd ' + hours + 'h';
+    if (hours > 0) return hours + 'h ' + mins + 'm';
+    return mins + 'm';
+  }
 
   // ---------- Countdown ----------
   const cdDisplay = document.getElementById('cd-display');
   const cdStatus = document.getElementById('cd-status');
+  const cdProgressFill = document.getElementById('cd-progress-fill');
 
-  function renderClock(diffMs, sign) {
+  function renderClock(diffMs, sign, compact) {
     const totalSec = Math.floor(Math.abs(diffMs) / 1000);
     const days = Math.floor(totalSec / 86400);
     const hours = Math.floor((totalSec % 86400) / 3600);
     const mins = Math.floor((totalSec % 3600) / 60);
     const secs = totalSec % 60;
-    cdDisplay.innerHTML =
-      '<div class="cd-clock">' +
-        '<span class="cd-sign">' + sign + '</span>' +
-        '<div class="cd-seg"><div class="cd-num amber">' + pad(days) + '</div><div class="cd-lbl">DÍAS</div></div>' +
-        '<div class="cd-sep">:</div>' +
-        '<div class="cd-seg"><div class="cd-num">' + pad(hours) + '</div><div class="cd-lbl">HRS</div></div>' +
-        '<div class="cd-sep">:</div>' +
-        '<div class="cd-seg"><div class="cd-num">' + pad(mins) + '</div><div class="cd-lbl">MIN</div></div>' +
-        '<div class="cd-sep">:</div>' +
-        '<div class="cd-seg"><div class="cd-num">' + pad(secs) + '</div><div class="cd-lbl">SEG</div></div>' +
-      '</div>';
+    const cls = 'cd-clock' + (compact ? ' compact' : '');
+    let segs = '';
+    if (!compact) {
+      segs += '<div class="cd-seg"><div class="cd-num amber">' + pad(days) + '</div><div class="cd-lbl">DÍAS</div></div>';
+      segs += '<div class="cd-sep">:</div>';
+    }
+    segs += '<div class="cd-seg"><div class="cd-num">' + pad(hours) + '</div><div class="cd-lbl">HRS</div></div>';
+    segs += '<div class="cd-sep">:</div>';
+    segs += '<div class="cd-seg"><div class="cd-num">' + pad(mins) + '</div><div class="cd-lbl">MIN</div></div>';
+    segs += '<div class="cd-sep">:</div>';
+    segs += '<div class="cd-seg"><div class="cd-num">' + pad(secs) + '</div><div class="cd-lbl">SEG</div></div>';
+    cdDisplay.innerHTML = '<div class="' + cls + '"><span class="cd-sign">' + sign + '</span>' + segs + '</div>';
+  }
+
+  function updateProgress() {
+    if (bornAt) { cdProgressFill.style.width = '100%'; return; }
+    const now = Date.now();
+    const target = TARGET.getTime();
+    const start = target - PROGRESS_WINDOW_DAYS * 86400 * 1000;
+    const pct = Math.max(0, Math.min(100, ((now - start) / (target - start)) * 100));
+    cdProgressFill.style.width = pct.toFixed(2) + '%';
   }
 
   const cdCard = document.getElementById('cd-card');
-  const birthBox = document.getElementById('birth-box');
   const bbTime = document.getElementById('bb-time');
   const bbWeight = document.getElementById('bb-weight');
+  const bbSince = document.getElementById('bb-since');
+  const pageTitle = document.getElementById('page-title');
 
   function fmtWeight(g) {
     if (!g) return '—';
-    return g + ' g';
+    const kg = (g / 1000).toFixed(2);
+    return g + ' g · ' + kg + ' kg';
   }
 
-  const pageTitle = document.getElementById('page-title');
-  function updateBirthBox() {
+  function applyBornState() {
+    document.body.classList.toggle('is-born', !!bornAt);
     if (bornAt) {
       const d = new Date(bornAt);
-      bbTime.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
+      bbTime.textContent = pad(d.getDate()) + '/' + pad(d.getMonth()+1) + ' · ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
       bbWeight.textContent = fmtWeight(weightGrams);
-      birthBox.classList.add('show');
+      bbSince.textContent = 'Hace ' + durationSince(bornAt);
       cdCard.classList.add('celebrate');
       pageTitle.textContent = '¡Llegó Luca!';
       document.title = '¡Llegó Luca!';
     } else {
-      birthBox.classList.remove('show');
       cdCard.classList.remove('celebrate');
       pageTitle.textContent = 'Llega Luca';
       document.title = 'Llega Luca';
@@ -702,16 +1041,19 @@ body.is-admin .update-del { display: inline-block; }
     if (bornAt) {
       cdStatus.textContent = 'NACIDO';
       cdStatus.classList.add('born');
-      renderClock(now - new Date(bornAt).getTime(), 'T+');
+      bbSince.textContent = 'Hace ' + durationSince(bornAt);
     } else if (now < TARGET.getTime()) {
       cdStatus.textContent = 'PROGRAMADO';
       cdStatus.classList.remove('born');
-      renderClock(TARGET.getTime() - now, 'T−');
+      const diff = TARGET.getTime() - now;
+      const compact = diff < 86400 * 1000;
+      renderClock(diff, 'T−', compact);
     } else {
       cdStatus.textContent = 'EN CURSO';
       cdStatus.classList.remove('born');
       cdDisplay.innerHTML = '<div class="cd-suspense">. . .</div>';
     }
+    updateProgress();
   }
   setInterval(tick, 1000);
   tick();
@@ -731,17 +1073,39 @@ body.is-admin .update-del { display: inline-block; }
     })();
   }
 
-  async function loadBornAt() {
-    const { data, error } = await sb.from('birth_moment').select('born_at, weight_grams').eq('id', 1).maybeSingle();
-    if (error) { console.warn('birth_moment load failed', error); return; }
-    bornAt = data && data.born_at;
-    weightGrams = data && data.weight_grams;
-    updateBirthBox();
+  function maybeNotifyBirth() {
+    if (!bornAt) return;
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+    if (localStorage.getItem('notified-birth') === '1') return;
+    localStorage.setItem('notified-birth', '1');
+    try {
+      new Notification('¡Llegó Luca!', {
+        body: 'Acaba de nacer. Mira las primeras fotos.',
+        icon: 'icon-192.png',
+        badge: 'icon-192.png',
+        tag: 'luca-born'
+      });
+    } catch (e) { /* noop */ }
+  }
+
+  function applyBornFromData(prev) {
+    applyBornState();
     tick();
     if (bornAt && !hasFiredConfetti) {
       hasFiredConfetti = true;
       fireConfetti();
     }
+    if (bornAt && !prev) maybeNotifyBirth();
+  }
+
+  async function loadBornAt() {
+    const prev = bornAt;
+    const { data, error } = await sb.from('birth_moment').select('born_at, weight_grams').eq('id', 1).maybeSingle();
+    if (error) { console.warn('birth_moment load failed', error); return; }
+    bornAt = data && data.born_at;
+    weightGrams = data && data.weight_grams;
+    applyBornFromData(prev);
   }
 
   // Birth modal
@@ -792,11 +1156,36 @@ body.is-admin .update-del { display: inline-block; }
   }
   function hideLogin() { loginModal.classList.remove('show'); }
 
+  // hidden trigger: long-press / triple-tap on the title opens login
+  let titleTapCount = 0;
+  let titleTapTimer = null;
+  let titlePressTimer = null;
+  function onTitlePressStart() {
+    titlePressTimer = setTimeout(() => { if (!isAdmin) showLogin(); }, 800);
+  }
+  function onTitlePressEnd() { clearTimeout(titlePressTimer); }
+  pageTitle.addEventListener('mousedown', onTitlePressStart);
+  pageTitle.addEventListener('mouseup', onTitlePressEnd);
+  pageTitle.addEventListener('mouseleave', onTitlePressEnd);
+  pageTitle.addEventListener('touchstart', onTitlePressStart, { passive: true });
+  pageTitle.addEventListener('touchend', onTitlePressEnd);
+  pageTitle.addEventListener('touchcancel', onTitlePressEnd);
+  pageTitle.addEventListener('click', () => {
+    titleTapCount++;
+    clearTimeout(titleTapTimer);
+    titleTapTimer = setTimeout(() => { titleTapCount = 0; }, 600);
+    if (titleTapCount >= 3) {
+      titleTapCount = 0;
+      if (!isAdmin) showLogin();
+    }
+  });
+
   adminLink.addEventListener('click', (e) => {
     e.preventDefault();
     if (isAdmin) {
       if (confirm('¿Cerrar sesión?')) sb.auth.signOut();
     } else {
+      // public-facing dot stays subtle; clicking still works as fallback
       showLogin();
     }
   });
@@ -821,18 +1210,101 @@ body.is-admin .update-del { display: inline-block; }
   function applyAuth(session) {
     isAdmin = !!session;
     document.body.classList.toggle('is-admin', isAdmin);
-    adminLink.textContent = isAdmin ? 'Cerrar sesión' : 'Soy Daddey';
+    adminLink.textContent = isAdmin ? 'Cerrar sesión' : '·';
+    adminLink.setAttribute('aria-label', isAdmin ? 'Cerrar sesión' : 'Admin');
   }
 
   sb.auth.getSession().then(({ data }) => applyAuth(data.session));
   sb.auth.onAuthStateChange((_event, session) => applyAuth(session));
 
+  // ---------- Notify-me button ----------
+  const btnNotify = document.getElementById('btn-notify');
+  function refreshNotifyBtn() {
+    if (bornAt) { btnNotify.hidden = true; return; }
+    if (!('Notification' in window)) { btnNotify.hidden = true; return; }
+    if (Notification.permission === 'granted') { btnNotify.hidden = true; return; }
+    if (Notification.permission === 'denied') { btnNotify.hidden = true; return; }
+    btnNotify.hidden = false;
+  }
+  btnNotify.addEventListener('click', async () => {
+    if (!('Notification' in window)) return;
+    try {
+      const result = await Notification.requestPermission();
+      if (result === 'granted') {
+        toast('Te avisaremos cuando nazca', 'success');
+        try {
+          new Notification('Avisos activados', { body: 'Te avisaremos cuando llegue Luca.', icon: 'icon-192.png' });
+        } catch(_) {}
+      } else if (result === 'denied') {
+        toast('Avisos bloqueados', 'error');
+      }
+    } catch (e) { /* noop */ }
+    refreshNotifyBtn();
+  });
+  refreshNotifyBtn();
+
+  // ---------- Photo helpers (resize + thumb) ----------
+  function loadImageFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { resolve({ img, url }); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+      img.src = url;
+    });
+  }
+  function resizeToBlob(img, maxDim, quality) {
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const scale = Math.min(1, maxDim / Math.max(w, h));
+    const tw = Math.round(w * scale), th = Math.round(h * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = tw; canvas.height = th;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, tw, th);
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('Conversión falló')), 'image/jpeg', quality);
+    });
+  }
+  function slugify(s) {
+    return s.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9.]+/g, '-').replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'foto';
+  }
+
+  async function uploadPhotoSet(file) {
+    if (file.size > MAX_PHOTO_INPUT) throw new Error('Foto demasiado grande (máx 25 MB)');
+    const { img, url } = await loadImageFromFile(file);
+    try {
+      const fullBlob = await resizeToBlob(img, FULL_MAX_DIM, 0.85);
+      const thumbBlob = await resizeToBlob(img, THUMB_MAX_DIM, 0.78);
+      const base = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '-' + slugify(file.name.replace(/\.[^.]+$/, ''));
+      const fullPath = base + '.jpg';
+      const thumbPath = base + '-t.jpg';
+      const up1 = await sb.storage.from(BUCKET).upload(fullPath, fullBlob, { upsert: false, contentType: 'image/jpeg' });
+      if (up1.error) throw up1.error;
+      const up2 = await sb.storage.from(BUCKET).upload(thumbPath, thumbBlob, { upsert: false, contentType: 'image/jpeg' });
+      if (up2.error) throw up2.error;
+      return { f: PUBLIC_BASE + fullPath, t: PUBLIC_BASE + thumbPath };
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
   // ---------- Updates ----------
   const feedEl = document.getElementById('feed');
 
+  function normalizePhotos(u) {
+    if (Array.isArray(u.photos) && u.photos.length) {
+      return u.photos.map(p => (typeof p === 'string') ? { f: p, t: p } : { f: p.f || p.full || p.url, t: p.t || p.thumb || p.f || p.full || p.url });
+    }
+    if (u.photo_url) return [{ f: u.photo_url, t: u.photo_url }];
+    return [];
+  }
+
   async function loadUpdates() {
     const { data, error } = await sb.from('birth_updates')
-      .select('id, created_at, text, photo_url')
+      .select('id, created_at, text, photo_url, photos, reactions_count')
       .order('created_at', { ascending: false })
       .limit(200);
     if (error) { console.warn('updates load failed', error); return; }
@@ -861,11 +1333,17 @@ body.is-admin .update-del { display: inline-block; }
     if (!updates.length) {
       const e = document.createElement('div');
       e.className = 'feed-empty';
-      e.textContent = 'Aún no hay actualizaciones.';
+      e.innerHTML = '<span class="fe-emoji">🍼</span><div class="fe-title">Pronto habrá noticias</div><div class="fe-sub">Las primeras fotos y mensajes aparecerán aquí.</div>';
       feedEl.appendChild(e);
       return;
     }
     updates.forEach(u => feedEl.appendChild(renderUpdate(u)));
+  }
+
+  function isLiked(id) { return localStorage.getItem('liked-' + id) === '1'; }
+  function setLiked(id, v) {
+    if (v) localStorage.setItem('liked-' + id, '1');
+    else localStorage.removeItem('liked-' + id);
   }
 
   function renderUpdate(u) {
@@ -893,43 +1371,92 @@ body.is-admin .update-del { display: inline-block; }
       txt.textContent = u.text;
       card.appendChild(txt);
     }
-    if (u.photo_url) {
-      const img = document.createElement('img');
-      img.className = 'update-photo';
-      img.src = u.photo_url;
-      img.loading = 'lazy';
-      img.addEventListener('click', () => openLightbox(u.photo_url));
-      card.appendChild(img);
+
+    const photos = normalizePhotos(u);
+    if (photos.length) {
+      const grid = document.createElement('div');
+      grid.className = 'update-photos n-' + Math.min(photos.length, 6);
+      photos.forEach((p, idx) => {
+        const img = document.createElement('img');
+        img.className = 'update-photo-thumb';
+        img.src = p.t;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.alt = 'Foto';
+        img.addEventListener('click', () => openLightbox(photos, idx));
+        grid.appendChild(img);
+      });
+      card.appendChild(grid);
     }
+
+    // Actions row: heart
+    const actions = document.createElement('div');
+    actions.className = 'update-actions';
+    const heart = document.createElement('button');
+    heart.className = 'heart-btn' + (isLiked(u.id) ? ' liked' : '');
+    heart.innerHTML = '<span class="heart-icon">' + (isLiked(u.id) ? '♥' : '♡') + '</span><span class="heart-count">' + (u.reactions_count || 0) + '</span>';
+    heart.addEventListener('click', () => toggleHeart(u, heart));
+    actions.appendChild(heart);
+    card.appendChild(actions);
 
     card.appendChild(renderCommentsBlock(u));
     return card;
   }
 
+  async function toggleHeart(u, btn) {
+    const liked = isLiked(u.id);
+    const delta = liked ? -1 : 1;
+    setLiked(u.id, !liked);
+    // optimistic
+    btn.classList.toggle('liked', !liked);
+    const countEl = btn.querySelector('.heart-count');
+    const iconEl = btn.querySelector('.heart-icon');
+    const newCount = Math.max(0, (parseInt(countEl.textContent, 10) || 0) + delta);
+    countEl.textContent = newCount;
+    iconEl.textContent = !liked ? '♥' : '♡';
+    u.reactions_count = newCount;
+    btn.disabled = true;
+    try {
+      const { data, error } = await sb.rpc('toggle_reaction', { update_id_in: u.id, delta });
+      if (error) throw error;
+      if (typeof data === 'number') {
+        countEl.textContent = data;
+        u.reactions_count = data;
+      }
+    } catch (ex) {
+      // revert
+      setLiked(u.id, liked);
+      btn.classList.toggle('liked', liked);
+      countEl.textContent = Math.max(0, newCount - delta);
+      iconEl.textContent = liked ? '♥' : '♡';
+      u.reactions_count = Math.max(0, newCount - delta);
+      toast('No se pudo guardar', 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   function renderCommentsBlock(u) {
     const wrap = document.createElement('div');
     wrap.className = 'comments';
-    const title = document.createElement('div');
-    title.className = 'comments-title';
     const list = commentsByUpdate.get(u.id) || [];
-    title.textContent = list.length ? 'Comentarios (' + list.length + ')' : 'Comentarios';
-    wrap.appendChild(title);
+
+    const toggle = document.createElement('button');
+    toggle.className = 'comments-toggle';
+    toggle.innerHTML = '<span class="chev">›</span><span class="ct-label">' + (list.length ? 'Comentarios (' + list.length + ')' : 'Comentar') + '</span>';
+    toggle.addEventListener('click', () => wrap.classList.toggle('open'));
+    wrap.appendChild(toggle);
+
+    const body = document.createElement('div');
+    body.className = 'comments-body';
 
     if (!list.length) {
       const empty = document.createElement('div');
       empty.className = 'comments-empty';
       empty.textContent = 'Sé el primero en comentar.';
-      wrap.appendChild(empty);
+      body.appendChild(empty);
     } else {
-      list.forEach(c => {
-        const row = document.createElement('div');
-        row.className = 'comment';
-        const n = document.createElement('span'); n.className = 'comment-name'; n.textContent = c.name;
-        const t = document.createElement('span'); t.className = 'comment-text'; t.textContent = ' · ' + c.text;
-        const ts = document.createElement('span'); ts.className = 'comment-time'; ts.textContent = relTime(c.created_at);
-        row.appendChild(n); row.appendChild(t); row.appendChild(ts);
-        wrap.appendChild(row);
-      });
+      list.forEach(c => body.appendChild(renderComment(c)));
     }
 
     const form = document.createElement('div');
@@ -963,7 +1490,6 @@ body.is-admin .update-del { display: inline-block; }
         await postComment(u.id, name, text);
         localStorage.setItem('commenter-name', name);
         textArea.value = '';
-        await loadUpdates();
       } catch (ex) {
         toast('Error: ' + (ex.message || ex), 'error');
       } finally {
@@ -972,8 +1498,20 @@ body.is-admin .update-del { display: inline-block; }
     });
     actions.appendChild(btn);
     form.appendChild(actions);
-    wrap.appendChild(form);
+    body.appendChild(form);
+    wrap.appendChild(body);
     return wrap;
+  }
+
+  function renderComment(c) {
+    const row = document.createElement('div');
+    row.className = 'comment';
+    row.dataset.cid = c.id;
+    const n = document.createElement('span'); n.className = 'comment-name'; n.textContent = c.name;
+    const t = document.createElement('span'); t.className = 'comment-text'; t.textContent = ' · ' + c.text;
+    const ts = document.createElement('span'); ts.className = 'comment-time'; ts.textContent = relTime(c.created_at);
+    row.appendChild(n); row.appendChild(t); row.appendChild(ts);
+    return row;
   }
 
   async function postComment(updateId, name, text) {
@@ -983,55 +1521,59 @@ body.is-admin .update-del { display: inline-block; }
 
   async function deleteUpdate(u) {
     if (!confirm('¿Eliminar esta actualización?')) return;
-    if (u.photo_url && u.photo_url.startsWith(PUBLIC_BASE)) {
-      const path = u.photo_url.slice(PUBLIC_BASE.length);
-      sb.storage.from(BUCKET).remove([path]).catch(() => {});
-    }
+    const photos = normalizePhotos(u);
+    photos.forEach(p => {
+      [p.f, p.t].forEach(url => {
+        if (url && url.startsWith(PUBLIC_BASE)) {
+          const path = url.slice(PUBLIC_BASE.length);
+          sb.storage.from(BUCKET).remove([path]).catch(() => {});
+        }
+      });
+    });
     const { error } = await sb.from('birth_updates').delete().eq('id', u.id);
     if (error) { toast('Error: ' + error.message, 'error'); return; }
     toast('Actualización eliminada', 'success');
-    await loadUpdates();
   }
 
   // ---------- Admin post form ----------
   const upText = document.getElementById('up-text');
   const upPhoto = document.getElementById('up-photo');
+  const upPreviews = document.getElementById('up-previews');
   const upSubmit = document.getElementById('up-submit');
   const upError = document.getElementById('up-error');
 
-  function slugify(s) {
-    return s.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9.]+/g, '-').replace(/^-+|-+$/g, '')
-      .slice(0, 60) || 'foto';
-  }
-
-  async function uploadPhoto(file) {
-    if (file.size > MAX_PHOTO) throw new Error('Foto demasiado grande (máx 10 MB)');
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const path = Date.now() + '-' + slugify(file.name.replace(/\.[^.]+$/, '')) + '.' + ext;
-    const { error } = await sb.storage.from(BUCKET).upload(path, file, {
-      upsert: false,
-      contentType: file.type || undefined
+  upPhoto.addEventListener('change', () => {
+    const files = Array.from(upPhoto.files || []).slice(0, MAX_PHOTOS_PER_POST);
+    pendingFiles = files;
+    upPreviews.innerHTML = '';
+    files.forEach(f => {
+      const url = URL.createObjectURL(f);
+      const img = document.createElement('img');
+      img.src = url;
+      img.onload = () => URL.revokeObjectURL(url);
+      upPreviews.appendChild(img);
     });
-    if (error) throw error;
-    return PUBLIC_BASE + path;
-  }
+  });
 
   upSubmit.addEventListener('click', async () => {
     upError.style.display = 'none';
     const text = upText.value.trim();
-    if (!text) { upError.textContent = 'Escribe algo'; upError.style.display = 'block'; return; }
-    const file = upPhoto.files[0] || null;
+    if (!text && !pendingFiles.length) { upError.textContent = 'Escribe algo o añade una foto'; upError.style.display = 'block'; return; }
     upSubmit.disabled = true; upSubmit.textContent = 'Publicando…';
     try {
-      let photo_url = null;
-      if (file) photo_url = await uploadPhoto(file);
-      const { error } = await sb.from('birth_updates').insert({ text, photo_url });
+      const photos = [];
+      for (let i = 0; i < pendingFiles.length; i++) {
+        upSubmit.textContent = 'Subiendo ' + (i+1) + '/' + pendingFiles.length + '…';
+        const set = await uploadPhotoSet(pendingFiles[i]);
+        photos.push(set);
+      }
+      const payload = { text: text || null, photos: photos.length ? photos : null };
+      // backward-compat: also fill photo_url with first full
+      if (photos.length) payload.photo_url = photos[0].f;
+      const { error } = await sb.from('birth_updates').insert(payload);
       if (error) throw error;
-      upText.value = ''; upPhoto.value = '';
+      upText.value = ''; upPhoto.value = ''; upPreviews.innerHTML = ''; pendingFiles = [];
       toast('Publicado', 'success');
-      await loadUpdates();
     } catch (ex) {
       upError.textContent = ex.message || 'Error al publicar';
       upError.style.display = 'block';
@@ -1040,12 +1582,79 @@ body.is-admin .update-del { display: inline-block; }
     }
   });
 
-  // ---------- Realtime ----------
+  // ---------- Realtime: surgical patches instead of full reload ----------
+  function findCardEl(id) { return feedEl.querySelector('.update[data-id="' + CSS.escape(String(id)) + '"]'); }
+
+  function patchUpdateInsert(row) {
+    if (updates.find(u => u.id === row.id)) return;
+    updates.unshift(row);
+    if (!commentsByUpdate.has(row.id)) commentsByUpdate.set(row.id, []);
+    if (updates.length === 1) { renderFeed(); return; }
+    const empty = feedEl.querySelector('.feed-empty');
+    if (empty) empty.remove();
+    feedEl.insertBefore(renderUpdate(row), feedEl.firstChild);
+  }
+  function patchUpdateDelete(id) {
+    updates = updates.filter(u => u.id !== id);
+    commentsByUpdate.delete(id);
+    const el = findCardEl(id);
+    if (el) el.remove();
+    if (!updates.length) renderFeed();
+  }
+  function patchUpdateUpdate(row) {
+    const idx = updates.findIndex(u => u.id === row.id);
+    if (idx === -1) return;
+    const prev = updates[idx];
+    updates[idx] = Object.assign({}, prev, row);
+    const el = findCardEl(row.id);
+    if (!el) return;
+    // patch reactions count (most common update)
+    const countEl = el.querySelector('.heart-count');
+    if (countEl && typeof row.reactions_count === 'number') {
+      countEl.textContent = row.reactions_count;
+    }
+  }
+  function patchCommentInsert(c) {
+    const list = commentsByUpdate.get(c.update_id) || [];
+    if (list.find(x => x.id === c.id)) return;
+    list.push(c);
+    commentsByUpdate.set(c.update_id, list);
+    const card = findCardEl(c.update_id);
+    if (!card) return;
+    const wrap = card.querySelector('.comments');
+    const body = wrap.querySelector('.comments-body');
+    const empty = body.querySelector('.comments-empty');
+    if (empty) empty.remove();
+    const form = body.querySelector('.comment-form');
+    body.insertBefore(renderComment(c), form);
+    const label = wrap.querySelector('.ct-label');
+    if (label) label.textContent = 'Comentarios (' + list.length + ')';
+  }
+  function patchCommentDelete(c) {
+    const list = (commentsByUpdate.get(c.update_id) || []).filter(x => x.id !== c.id);
+    commentsByUpdate.set(c.update_id, list);
+    const card = findCardEl(c.update_id);
+    if (!card) return;
+    const row = card.querySelector('.comment[data-cid="' + CSS.escape(String(c.id)) + '"]');
+    if (row) row.remove();
+    const label = card.querySelector('.ct-label');
+    if (label) label.textContent = list.length ? ('Comentarios (' + list.length + ')') : 'Comentar';
+  }
+
   sb.channel('birth-feed')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'birth_updates' }, () => loadUpdates())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'birth_comments' }, () => loadUpdates())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'birth_moment' }, () => loadBornAt())
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'birth_updates' }, (p) => patchUpdateInsert(p.new))
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'birth_updates' }, (p) => patchUpdateUpdate(p.new))
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'birth_updates' }, (p) => patchUpdateDelete(p.old.id))
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'birth_comments' }, (p) => patchCommentInsert(p.new))
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'birth_comments' }, (p) => patchCommentDelete(p.old))
+    .on('postgres_changes', { event: '*',      schema: 'public', table: 'birth_moment'   }, () => loadBornAt())
     .subscribe();
+
+  // ---------- Online/offline ----------
+  function updateOnline() { document.body.classList.toggle('is-offline', !navigator.onLine); }
+  window.addEventListener('online', updateOnline);
+  window.addEventListener('offline', updateOnline);
+  updateOnline();
 
   // ---------- Boot ----------
   loadBornAt();
