@@ -112,19 +112,21 @@ body {
 }
 .cd-hero {
   flex: 0 0 auto;
-  width: clamp(96px, 26%, 160px);
+  width: clamp(110px, 30%, 180px);
   aspect-ratio: 2 / 3;
   object-fit: cover;
   object-position: top center;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #fffaf0, #fff4e3);
-  box-shadow: 0 6px 18px rgba(20,30,60,0.10);
-  transform: rotate(2deg);
-  transition: transform .3s ease;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   align-self: center;
-  margin-top: 16px;
+  margin-top: 8px;
+  cursor: zoom-in;
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 55% 45%, black 40%, transparent 90%);
+  mask-image: radial-gradient(ellipse 80% 80% at 55% 45%, black 40%, transparent 90%);
+  transition: transform .3s ease;
 }
-.cd-hero:hover { transform: rotate(0deg) scale(1.03); }
+.cd-hero:hover { transform: scale(1.04); }
 .cd-hero[hidden] { display: none !important; }
 
 .update-pin {
@@ -770,7 +772,7 @@ body.is-offline .offline-badge { display: inline-block; }
   .card { padding: 20px 18px; border-radius: 14px; }
   .countdown-card { padding: 0 16px 18px; gap: 12px; }
   body.is-born .countdown-card { padding: 22px 16px 18px; }
-  .cd-hero { width: 96px; margin-top: 14px; }
+  .cd-hero { width: 100px; margin-top: 10px; }
   .cd-seg { min-width: 36px; }
   .cd-clock.compact .cd-seg { min-width: 48px; }
   .comment-form .name-row { flex-direction: column; }
@@ -1160,6 +1162,11 @@ body.is-offline .offline-badge { display: inline-block; }
   }
 
   const HERO_DEFAULT = 'hero.jpg';
+  cdHero.addEventListener('click', () => {
+    const src = cdHero.src;
+    if (src) openLightbox([{ f: src, t: src }], 0);
+  });
+
   function applyHero() {
     cdHero.src = heroPhotoUrl || HERO_DEFAULT;
     cdHero.hidden = false;
