@@ -765,6 +765,7 @@ body.is-offline .offline-badge { display: inline-block; }
 
     <div class="cd-admin-actions">
       <button class="btn btn-primary" id="btn-born">Marcar como nacido</button>
+      <button class="btn btn-link" id="btn-reset-born" hidden>Resetear</button>
     </div>
   </div>
 
@@ -1019,6 +1020,7 @@ body.is-offline .offline-badge { display: inline-block; }
 
   function applyBornState() {
     document.body.classList.toggle('is-born', !!bornAt);
+    btnResetBorn.hidden = !bornAt;
     if (bornAt) {
       const d = new Date(bornAt);
       bbTime.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
@@ -1122,6 +1124,19 @@ body.is-offline .offline-badge { display: inline-block; }
     birthWeightInput.value = weightGrams || '';
     birthModal.classList.add('show');
     setTimeout(() => birthWeightInput.focus(), 50);
+  });
+
+  const btnResetBorn = document.getElementById('btn-reset-born');
+  btnResetBorn.addEventListener('click', async () => {
+    if (!confirm('¿Resetear nacimiento? Volverá a mostrar la cuenta atrás.')) return;
+    btnResetBorn.disabled = true;
+    const { error } = await sb.from('birth_moment').update({ born_at: null, weight_grams: null }).eq('id', 1);
+    btnResetBorn.disabled = false;
+    if (error) { toast('Error: ' + error.message, 'error'); return; }
+    localStorage.removeItem('notified-birth');
+    hasFiredConfetti = false;
+    toast('Reseteado', 'success');
+    await loadBornAt();
   });
   document.getElementById('birth-cancel').addEventListener('click', () => birthModal.classList.remove('show'));
   birthModal.addEventListener('click', (e) => { if (e.target === birthModal) birthModal.classList.remove('show'); });
