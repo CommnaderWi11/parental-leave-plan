@@ -2021,6 +2021,8 @@ window.fmtLongDate = function(d) {
       const tab = document.querySelector('.nav-link[href="#tramites"]');
       if (tab) tab.click();
       setTimeout(() => {
+        const grp = top.box.closest('.tramite-group');
+        if (grp && grp.classList.contains('group-collapsed')) { grp.classList.remove('group-collapsed'); grp.dataset.manualExpand = '1'; }
         top.box.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const row = top.box.closest('.tramite-row');
         if (row) { row.style.boxShadow = '0 0 0 2px #ef4444'; setTimeout(() => { row.style.boxShadow = ''; }, 1800); }
@@ -2064,6 +2066,8 @@ window.fmtLongDate = function(d) {
       const tramitesTab = document.querySelector('.nav-link[href="#tramites"]');
       if (tramitesTab) tramitesTab.click();
       setTimeout(() => {
+        const grp = top.box.closest('.tramite-group');
+        if (grp && grp.classList.contains('group-collapsed')) { grp.classList.remove('group-collapsed'); grp.dataset.manualExpand = '1'; }
         top.box.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const row = top.box.closest('.tramite-row');
         if (row) {
