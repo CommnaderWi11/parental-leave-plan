@@ -627,6 +627,11 @@ section { scroll-margin-top: 60px; }
 .tramite-group.group-collapsed > * { display: none; }
 .tramite-group.group-collapsed > h3 { display: block; opacity: 0.75; }
 .tramite-group.group-collapsed > h3::after { content: ' ▸'; font-size: 14px; color: var(--text-muted); font-weight: 500; margin-left: 6px; }
+.collapsed-urgency { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+.collapsed-urgency.has-overdue { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.45); }
+.collapsed-urgency.has-urgent { background: rgba(251,113,133,0.18); color: #fb7185; border: 1px solid rgba(251,113,133,0.4); }
+.collapsed-urgency.has-soon { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.35); }
+.tramite-group:not(.group-collapsed) .collapsed-urgency { display: none; }
 .tramite-group:not(.group-collapsed) > h3::after { content: ' ▾'; font-size: 14px; color: var(--text-muted); font-weight: 500; margin-left: 6px; }
 .tramite-group > h3 { user-select: none; }
 
@@ -1132,7 +1137,7 @@ window.sb.auth.getSession().then(({ data }) => {
     <div class="glass tramite-group" id="grp-binter">
       <h3>Binter — Company / HR</h3>
       <p class="group-desc">Notify blocks with at least 15 days notice so HR can issue the company certificate to INSS.</p>
-      <div class="progress-label" id="prog-label-binter">0 / 4 completed</div>
+      <div class="progress-label" id="prog-label-binter">0 / 5 completed</div>
       <div class="progress-track"><div class="progress-fill" id="prog-binter" style="width:0%"></div></div>
 
       <div class="tramite-row"><input type="checkbox" data-group="binter" data-idx="0">
@@ -1146,6 +1151,9 @@ window.sb.auth.getSession().then(({ data }) => {
         <span class="badge badge-pending">Pending</span></div>
       <div class="tramite-row"><input type="checkbox" data-group="binter" data-idx="3">
         <div class="tramite-info"><div class="name">Overlapping vacation refund request</div><div class="meta">Binter HR · 21 Apr – 2 May (~8 days) overlap with mandatory → refund to balance</div><span class="doc-slot" data-folder="Binter"></span></div>
+        <span class="badge badge-pending">Pending</span></div>
+      <div class="tramite-row"><input type="checkbox" data-group="binter" data-idx="4">
+        <div class="tramite-info"><div class="name">Email Jefe De Operaciones — summer leave choices</div><div class="meta">Binter · Email summer leave preferences to Jefe De Operaciones</div><span class="doc-slot" data-folder="Binter"></span></div>
         <span class="badge badge-pending">Pending</span></div>
     </div>
 
@@ -1313,7 +1321,8 @@ window.TRAMITES = {
   'binter-0': { deadline: { kind: 'beforeEDD', days: 1, label: 'Before birth' }, priority: 'critical', scope: 'empresa' },
   'binter-1': { deadline: { kind: 'afterBirth', days: 15, label: 'After Registro Civil registration' }, scope: 'empresa' },
   'binter-2': { deadline: { kind: 'beforeBloque', bloque: 2, days: 15, label: '15d before block' }, scope: 'empresa' },
-  'binter-3': { deadline: { kind: 'beforeEDD', days: 7, label: 'Before mandatory period' }, scope: 'empresa' },
+  'binter-3': { deadline: { kind: 'absolute', date: '2026-06-20', label: 'Due 20 Jun 2026' }, scope: 'empresa' },
+  'binter-4': { deadline: { kind: 'absolute', date: '2026-04-25', label: 'Due 25 Apr 2026' }, priority: 'high', scope: 'empresa' },
   // ---------- Bebé (admin) ----------
   'bebe-0': { name: 'Online birth registration at Registro Civil (Vithas handles)', meta: 'Vithas Ciudad Jardín · 72h · Processed from hospital',
               deadline: { kind: 'afterBirth', days: 3, label: '72h after birth' }, priority: 'critical', scope: 'privado' },
@@ -2132,6 +2141,39 @@ window.fmtLongDate = function(d) {
     document.querySelectorAll('.tramite-group').forEach(grpEl => {
       if (!grpEl.dataset.manualExpand) grpEl.classList.add('group-collapsed');
     });
+    updateCollapsedBadges();
+  }
+
+  function updateCollapsedBadges() {
+    document.querySelectorAll('.tramite-group').forEach(grpEl => {
+      const h3 = grpEl.querySelector('h3');
+      if (!h3) return;
+      let badge = h3.querySelector('.collapsed-urgency');
+      const boxes = grpEl.querySelectorAll('input[data-group]');
+      let overdueCount = 0, urgentCount = 0, soonCount = 0;
+      boxes.forEach(box => {
+        if (box.checked) return;
+        const key = box.dataset.group + '-' + box.dataset.idx;
+        const dl = window.resolveDeadline(key);
+        if (!dl) return;
+        if (dl.daysUntil < 0) overdueCount++;
+        else if (dl.daysUntil <= 3) urgentCount++;
+        else if (dl.daysUntil <= 14) soonCount++;
+      });
+      const total = overdueCount + urgentCount;
+      if (!total && !soonCount) { if (badge) badge.remove(); return; }
+      if (!badge) { badge = document.createElement('span'); badge.className = 'collapsed-urgency'; h3.appendChild(badge); }
+      if (overdueCount) {
+        badge.className = 'collapsed-urgency has-overdue';
+        badge.textContent = overdueCount + ' overdue' + (urgentCount ? ', ' + urgentCount + ' urgent' : '');
+      } else if (urgentCount) {
+        badge.className = 'collapsed-urgency has-urgent';
+        badge.textContent = urgentCount + ' urgent';
+      } else {
+        badge.className = 'collapsed-urgency has-soon';
+        badge.textContent = soonCount + ' due soon';
+      }
+    });
   }
 
   // Make group <h3> click toggle collapsed state (manual override)
@@ -2141,6 +2183,7 @@ window.fmtLongDate = function(d) {
       const grp = h3.parentElement;
       if (grp.classList.toggle('group-collapsed')) delete grp.dataset.manualExpand;
       else grp.dataset.manualExpand = '1';
+      updateCollapsedBadges();
     });
   });
 
